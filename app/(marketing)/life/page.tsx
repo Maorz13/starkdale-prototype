@@ -1,11 +1,11 @@
-import { HeroSection } from "@/components/hero-section"
+import { VideoHeroSection } from "@/components/video-hero-section"
 import { CardGrid } from "@/components/card-grid"
 import { CTASection } from "@/components/cta-section"
 
 export default function LifeAtStarkdalePage() {
   return (
     <>
-      <HeroSection
+      <VideoHeroSection
         tag="Life at Starkdale"
         title="Community, Culture, and Connection"
         description="Where urban professionals find a second home built around shared values — nature, longevity, sustainability, and meaningful connection. A 658-acre living environment just 85 minutes from Manhattan."
@@ -13,8 +13,7 @@ export default function LifeAtStarkdalePage() {
           { label: "Contact Us", href: "/contact" },
           { label: "Explore Residences", href: "/residences", variant: "outline" },
         ]}
-        imageSrc="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=1200&q=80"
-        imagePlaceholder="Life at Starkdale"
+        posterSrc="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=1200&q=80"
       />
 
       <CardGrid

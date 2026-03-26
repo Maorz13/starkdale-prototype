@@ -1,4 +1,4 @@
-import { HeroSection } from "@/components/hero-section"
+import { VideoHeroSection } from "@/components/video-hero-section"
 import { ContentSection } from "@/components/content-section"
 import { FeatureGrid } from "@/components/feature-grid"
 import { CTASection } from "@/components/cta-section"
@@ -7,16 +7,15 @@ import { UtensilsCrossed, Salad, ChefHat, ShoppingBasket, Coffee, Flame } from "
 export default function CulinaryPage() {
   return (
     <>
-      <HeroSection
+      <VideoHeroSection
         tag="Live Layers — Culinary"
         title="Food as Culture"
         description="At Starkdale, food is more than fuel. It's the daily ritual that gathers people, the dinner table where friendships deepen, and the farm-to-table philosophy that connects eating to the land just outside your door."
         actions={[
           { label: "Contact Us", href: "/contact" },
-          { label: "Explore Live Layers", href: "/life/live-layers", variant: "outline" },
+          { label: "Explore Live Layers", href: "/life/live-layers" },
         ]}
-        imageSrc="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=80"
-        imagePlaceholder="Culinary experience at Starkdale"
+        posterSrc="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80"
       />
 
       <FeatureGrid

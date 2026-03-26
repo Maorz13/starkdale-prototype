@@ -1,4 +1,4 @@
-import { HeroSection } from "@/components/hero-section"
+import { VideoHeroSection } from "@/components/video-hero-section"
 import { ContentSection } from "@/components/content-section"
 import { FeatureGrid } from "@/components/feature-grid"
 import { CTASection } from "@/components/cta-section"
@@ -7,16 +7,15 @@ import { Building2, Zap, Leaf, TreePine, Sun, Wrench } from "lucide-react"
 export default function DesignPage() {
   return (
     <>
-      <HeroSection
+      <VideoHeroSection
         tag="Live Layers — Design & Sustainability"
         title="Built to Last"
         description="Every structure at Starkdale reflects a commitment to sustainable design — from energy-efficient homes to smart infrastructure. Beauty and responsibility aren't in tension here. They're the same thing."
         actions={[
           { label: "Explore Residences", href: "/residences" },
-          { label: "Explore Live Layers", href: "/life/live-layers", variant: "outline" },
+          { label: "Explore Live Layers", href: "/life/live-layers" },
         ]}
-        imageSrc="https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=1200&q=80"
-        imagePlaceholder="Sustainable architecture at Starkdale"
+        posterSrc="https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=1600&q=80"
       />
 
       <FeatureGrid

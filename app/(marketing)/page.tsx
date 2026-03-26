@@ -6,7 +6,7 @@ import {
   Sparkles,
   Home,
 } from "lucide-react"
-import { HeroSection } from "@/components/hero-section"
+import { VideoHeroSection } from "@/components/video-hero-section"
 import { FeatureGrid } from "@/components/feature-grid"
 import { CardGrid } from "@/components/card-grid"
 import { CTASection } from "@/components/cta-section"
@@ -15,7 +15,7 @@ import { ContentSection } from "@/components/content-section"
 export default function HomePage() {
   return (
     <>
-      <HeroSection
+      <VideoHeroSection
         tag="658 Acres in Upstate New York"
         title="Your Home. Your Legacy."
         description="Starkdale is a living environment designed to extend your lifespan and healthspan — where nature, longevity science, and community converge just 85 minutes from Manhattan."
@@ -23,8 +23,8 @@ export default function HomePage() {
           { label: "Explore Residences", href: "/residences" },
           { label: "Contact Us", href: "/contact", variant: "outline" },
         ]}
-        imageSrc="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80"
-        imagePlaceholder="Starkdale Aerial View"
+        videoSrc="https://videos.pexels.com/video-files/3719543/3719543-uhd_2560_1440_25fps.mp4"
+        posterSrc="/home-hero-fallback.png"
       />
 
       <FeatureGrid

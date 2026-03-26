@@ -1,4 +1,4 @@
-import { HeroSection } from "@/components/hero-section"
+import { VideoHeroSection } from "@/components/video-hero-section"
 import { ContentSection } from "@/components/content-section"
 import { FeatureGrid } from "@/components/feature-grid"
 import { CTASection } from "@/components/cta-section"
@@ -7,16 +7,15 @@ import { Palette, Frame, PenTool, Users, Aperture, Sparkles } from "lucide-react
 export default function ArtsPage() {
   return (
     <>
-      <HeroSection
+      <VideoHeroSection
         tag="Live Layers — Arts"
         title="Creative Expression"
         description="Art at Starkdale isn't confined to gallery walls — it's embedded in the architecture, the landscape, and the community's daily life. The arts layer enriches the mind and creates shared experiences that deepen belonging."
         actions={[
           { label: "Contact Us", href: "/contact" },
-          { label: "Explore Live Layers", href: "/life/live-layers", variant: "outline" },
+          { label: "Explore Live Layers", href: "/life/live-layers" },
         ]}
-        imageSrc="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=1200&q=80"
-        imagePlaceholder="Arts and creative expression at Starkdale"
+        posterSrc="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=1600&q=80"
       />
 
       <FeatureGrid

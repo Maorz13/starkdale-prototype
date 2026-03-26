@@ -1,4 +1,4 @@
-import { HeroSection } from "@/components/hero-section"
+import { VideoHeroSection } from "@/components/video-hero-section"
 import { ContentSection } from "@/components/content-section"
 import { FeatureGrid } from "@/components/feature-grid"
 import { CTASection } from "@/components/cta-section"
@@ -7,16 +7,15 @@ import { Dumbbell, Users, PersonStanding, Trophy, Timer, Activity } from "lucide
 export default function FitnessPage() {
   return (
     <>
-      <HeroSection
+      <VideoHeroSection
         tag="Live Layers — Fitness"
         title="Move with Purpose"
         description="Fitness at Starkdale isn't a scheduled obligation — it's built into the landscape. Classes, equipment, trails, and community programming that make an active lifestyle the natural default."
         actions={[
           { label: "Contact Us", href: "/contact" },
-          { label: "Explore Live Layers", href: "/life/live-layers", variant: "outline" },
+          { label: "Explore Live Layers", href: "/life/live-layers" },
         ]}
-        imageSrc="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&q=80"
-        imagePlaceholder="Fitness at Starkdale"
+        posterSrc="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80"
       />
 
       <FeatureGrid

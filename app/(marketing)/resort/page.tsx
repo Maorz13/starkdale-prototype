@@ -1,4 +1,4 @@
-import { HeroSection } from "@/components/hero-section"
+import { VideoHeroSection } from "@/components/video-hero-section"
 import { ContentSection } from "@/components/content-section"
 import { CardGrid } from "@/components/card-grid"
 import { CTASection } from "@/components/cta-section"
@@ -6,7 +6,7 @@ import { CTASection } from "@/components/cta-section"
 export default function ResortPage() {
   return (
     <>
-      <HeroSection
+      <VideoHeroSection
         tag="Resort"
         title="The Starkdale Resort"
         description="Experience the lifestyle before making it home. 214 keys across suites, cabins, villas, and our Starkdale BNB program — all immersed in the same longevity-focused community, just 85 minutes from Manhattan."
@@ -14,8 +14,7 @@ export default function ResortPage() {
           { label: "Explore Lodging", href: "/resort/lodging" },
           { label: "Contact Us", href: "/contact", variant: "outline" },
         ]}
-        imageSrc="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80"
-        imagePlaceholder="Resort Overview"
+        posterSrc="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80"
       />
 
       <ContentSection

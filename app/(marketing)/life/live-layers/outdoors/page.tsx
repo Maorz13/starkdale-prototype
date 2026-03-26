@@ -1,4 +1,4 @@
-import { HeroSection } from "@/components/hero-section"
+import { VideoHeroSection } from "@/components/video-hero-section"
 import { ContentSection } from "@/components/content-section"
 import { FeatureGrid } from "@/components/feature-grid"
 import { CTASection } from "@/components/cta-section"
@@ -7,16 +7,15 @@ import { Waves, Mountain, Bike, Fish, Snowflake, Footprints } from "lucide-react
 export default function OutdoorsPage() {
   return (
     <>
-      <HeroSection
+      <VideoHeroSection
         tag="Live Layers — The Great Outdoors"
         title="Lakeside, Basecamp, and Beyond"
         description="658 acres of trails, water, and wilderness just 90 minutes from Midtown. The outdoor layer is the foundation of life at Starkdale — connecting residents to nature, to each other, and to themselves."
         actions={[
           { label: "Contact Us", href: "/contact" },
-          { label: "Explore Live Layers", href: "/life/live-layers", variant: "outline" },
+          { label: "Explore Live Layers", href: "/life/live-layers" },
         ]}
-        imageSrc="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200&q=80"
-        imagePlaceholder="Starkdale outdoors — trails and lake"
+        posterSrc="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1600&q=80"
       />
 
       <FeatureGrid

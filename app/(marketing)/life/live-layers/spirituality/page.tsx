@@ -1,4 +1,4 @@
-import { HeroSection } from "@/components/hero-section"
+import { VideoHeroSection } from "@/components/video-hero-section"
 import { ContentSection } from "@/components/content-section"
 import { FeatureGrid } from "@/components/feature-grid"
 import { CTASection } from "@/components/cta-section"
@@ -7,16 +7,15 @@ import { Wind, Leaf, Moon, Sun, TreePine, Sparkles } from "lucide-react"
 export default function SpiritualityPage() {
   return (
     <>
-      <HeroSection
+      <VideoHeroSection
         tag="Live Layers — Spirituality"
         title="Space for Stillness"
         description="Spiritual health is inseparable from physical longevity. At Starkdale, 658 acres of nature, dedicated contemplative spaces, and a year-round calendar of practices make stillness as accessible as a morning walk."
         actions={[
           { label: "Contact Us", href: "/contact" },
-          { label: "Explore Live Layers", href: "/life/live-layers", variant: "outline" },
+          { label: "Explore Live Layers", href: "/life/live-layers" },
         ]}
-        imageSrc="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&q=80"
-        imagePlaceholder="Stillness and nature at Starkdale"
+        posterSrc="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1600&q=80"
       />
 
       <FeatureGrid

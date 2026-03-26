@@ -1,4 +1,4 @@
-import { HeroSection } from "@/components/hero-section"
+import { VideoHeroSection } from "@/components/video-hero-section"
 import { ContentSection } from "@/components/content-section"
 import { FeatureGrid } from "@/components/feature-grid"
 import { CTASection } from "@/components/cta-section"
@@ -7,16 +7,15 @@ import { Music, Mic2, Radio, Theater, Star, Volume2 } from "lucide-react"
 export default function MusicPage() {
   return (
     <>
-      <HeroSection
+      <VideoHeroSection
         tag="Live Layers — Music"
         title="Sound Meets Soul"
         description="From intimate acoustic evenings to open-air performances under the sky, music at Starkdale is a living thread woven through community life — bringing people together in the way only shared sound can."
         actions={[
           { label: "Contact Us", href: "/contact" },
-          { label: "Explore Live Layers", href: "/life/live-layers", variant: "outline" },
+          { label: "Explore Live Layers", href: "/life/live-layers" },
         ]}
-        imageSrc="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=1200&q=80"
-        imagePlaceholder="Live music at Starkdale"
+        posterSrc="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=1600&q=80"
       />
 
       <FeatureGrid

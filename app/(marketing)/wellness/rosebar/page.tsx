@@ -1,4 +1,4 @@
-import { HeroSection } from "@/components/hero-section"
+import { VideoHeroSection } from "@/components/video-hero-section"
 import { ContentSection } from "@/components/content-section"
 import { CardGrid } from "@/components/card-grid"
 import { CTASection } from "@/components/cta-section"
@@ -6,7 +6,7 @@ import { CTASection } from "@/components/cta-section"
 export default function RosebarPage() {
   return (
     <>
-      <HeroSection
+      <VideoHeroSection
         tag="ROSEBAR — Longevity Center"
         title="The Future of Health Is Here"
         description="Led by Dr. Mark Hyman, ROSEBAR integrates cutting-edge longevity science with holistic healing. Advanced diagnostics, biohacking therapies, bespoke nutrition, and spiritual wellbeing — all under one roof."
@@ -14,8 +14,7 @@ export default function RosebarPage() {
           { label: "Our Experts", href: "/wellness/rosebar/experts" },
           { label: "Explore Treatments", href: "/wellness/rosebar/longevity-club", variant: "outline" },
         ]}
-        imageSrc="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200&q=80"
-        imagePlaceholder="ROSEBAR Longevity Center"
+        posterSrc="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200&q=80"
       />
 
       <ContentSection

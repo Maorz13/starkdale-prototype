@@ -1,17 +1,15 @@
-import { PageHeader } from "@/components/page-header"
+import { VideoHeroSection } from "@/components/video-hero-section"
 import { ContentSection } from "@/components/content-section"
 import { CTASection } from "@/components/cta-section"
 
 export default function LiveLayersPage() {
   return (
     <>
-      <PageHeader
-        breadcrumbs={[
-          { label: "Life at Starkdale", href: "/life" },
-          { label: "Live Layers" },
-        ]}
+      <VideoHeroSection
+        tag="Life at Starkdale"
         title="Live Layers"
         description="The layers that make every day meaningful — The Great Outdoors, fitness, longevity, social connection, creativity, and purpose. Each layer enriches life at Starkdale."
+        posterSrc="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1600&q=80"
       />
 
       <ContentSection

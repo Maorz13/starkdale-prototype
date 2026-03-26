@@ -1,4 +1,4 @@
-import { HeroSection } from "@/components/hero-section"
+import { VideoHeroSection } from "@/components/video-hero-section"
 import { ContentSection } from "@/components/content-section"
 import { FeatureGrid } from "@/components/feature-grid"
 import { CTASection } from "@/components/cta-section"
@@ -7,16 +7,15 @@ import { HandHeart, Users, Globe, Building, Sprout, Star } from "lucide-react"
 export default function CharityPage() {
   return (
     <>
-      <HeroSection
+      <VideoHeroSection
         tag="Live Layers — Charity"
         title="Purpose-Driven Living"
         description="Longevity isn't just about how long you live — it's about why. The charity layer at Starkdale creates meaningful opportunities to give back, stay connected to the world, and live with intention beyond yourself."
         actions={[
           { label: "Contact Us", href: "/contact" },
-          { label: "Explore Live Layers", href: "/life/live-layers", variant: "outline" },
+          { label: "Explore Live Layers", href: "/life/live-layers" },
         ]}
-        imageSrc="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=1200&q=80"
-        imagePlaceholder="Community giving and charity at Starkdale"
+        posterSrc="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=1600&q=80"
       />
 
       <FeatureGrid

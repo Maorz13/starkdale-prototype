@@ -1,4 +1,4 @@
-import { HeroSection } from "@/components/hero-section"
+import { VideoHeroSection } from "@/components/video-hero-section"
 import { FeatureGrid } from "@/components/feature-grid"
 import { CardGrid } from "@/components/card-grid"
 import { CTASection } from "@/components/cta-section"
@@ -7,7 +7,7 @@ import { Droplets, Dumbbell, Sparkles, Leaf, Heart, Music } from "lucide-react"
 export default function WellnessPage() {
   return (
     <>
-      <HeroSection
+      <VideoHeroSection
         tag="Wellness & Spa"
         title="Restore. Renew. Transform."
         description="100,000 square feet of world-class spa, longevity science, and holistic healing — designed not as a destination, but as part of your daily life at Starkdale."
@@ -15,8 +15,7 @@ export default function WellnessPage() {
           { label: "ROSEBAR Longevity", href: "/wellness/rosebar" },
           { label: "Spa Experiences", href: "/wellness/experiences", variant: "outline" },
         ]}
-        imageSrc="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1200&q=80"
-        imagePlaceholder="Spa & Wellness Center"
+        posterSrc="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1200&q=80"
       />
 
       <FeatureGrid

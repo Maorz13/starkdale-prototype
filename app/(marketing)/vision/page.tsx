@@ -6,7 +6,7 @@ import {
   Lightbulb,
   Shield,
 } from "lucide-react"
-import { HeroSection } from "@/components/hero-section"
+import { VideoHeroSection } from "@/components/video-hero-section"
 import { FeatureGrid } from "@/components/feature-grid"
 import { ContentSection } from "@/components/content-section"
 import { CTASection } from "@/components/cta-section"
@@ -14,15 +14,14 @@ import { CTASection } from "@/components/cta-section"
 export default function VisionPage() {
   return (
     <>
-      <HeroSection
+      <VideoHeroSection
         tag="Our Vision"
         title="Living Longer, Living Better"
         description="Starkdale is built on a fundamental belief: where you live shapes how long and how well you live. We've designed every acre, every building, and every program to extend your lifespan and healthspan."
         actions={[
           { label: "About Our Team", href: "/vision/about", variant: "outline" },
         ]}
-        imageSrc="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1200&q=80"
-        imagePlaceholder="Starkdale Vision"
+        posterSrc="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1200&q=80"
       />
 
       <FeatureGrid

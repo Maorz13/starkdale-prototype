@@ -1,4 +1,4 @@
-import { HeroSection } from "@/components/hero-section"
+import { VideoHeroSection } from "@/components/video-hero-section"
 import { ContentSection } from "@/components/content-section"
 import { FeatureGrid } from "@/components/feature-grid"
 import { CTASection } from "@/components/cta-section"
@@ -7,16 +7,15 @@ import { CalendarDays, UtensilsCrossed, Globe, Users, MapPin, Heart } from "luci
 export default function SocialPage() {
   return (
     <>
-      <HeroSection
+      <VideoHeroSection
         tag="Live Layers — Social"
         title="Connection That Lasts"
         description="A community of people who share your values around health, nature, and meaningful living. The social layer at Starkdale is what transforms a residence into a place you genuinely want to be."
         actions={[
           { label: "Contact Us", href: "/contact" },
-          { label: "Explore Live Layers", href: "/life/live-layers", variant: "outline" },
+          { label: "Explore Live Layers", href: "/life/live-layers" },
         ]}
-        imageSrc="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=1200&q=80"
-        imagePlaceholder="Community gathering at Starkdale"
+        posterSrc="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=1600&q=80"
       />
 
       <FeatureGrid

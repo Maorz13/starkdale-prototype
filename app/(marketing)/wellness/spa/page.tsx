@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/page-header"
+import { VideoHeroSection } from "@/components/video-hero-section"
 import { ContentSection } from "@/components/content-section"
 import { FeatureGrid } from "@/components/feature-grid"
 import { CTASection } from "@/components/cta-section"
@@ -7,13 +7,12 @@ import { Waves, Flame, Snowflake, Sparkles, Moon, Heart } from "lucide-react"
 export default function MembersSpaPage() {
   return (
     <>
-      <PageHeader
-        breadcrumbs={[
-          { label: "Longevity & Wellness", href: "/wellness" },
-          { label: "Members Spa" },
-        ]}
+      <VideoHeroSection
+        tag="Longevity & Wellness"
         title="Members Spa"
         description="An exclusive sanctuary for residents — thermal baths, restorative treatments, and a quiet refuge designed for deep recovery and renewal."
+        videoSrc="/spa-hero-video.mp4"
+        posterSrc="/spa-hero.png"
       />
 
       <ContentSection
