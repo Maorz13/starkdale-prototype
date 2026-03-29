@@ -214,73 +214,53 @@ export default function ResidencesV2Page() {
           </div>
         )}
 
-        {/* ── Neighborhood overlay ── */}
-        {selected && (
-          <>
-            {/* Backdrop */}
-            <div
-              className="absolute inset-0 z-20 bg-black/40 backdrop-blur-[2px]"
-              onClick={() => setSelected(null)}
-            />
-
-            {/* Panel */}
-            <div className="absolute inset-x-0 bottom-0 z-30 mx-auto flex max-w-2xl flex-col overflow-hidden rounded-t-2xl bg-background shadow-2xl sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-[560px] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl">
-
-              {/* Media */}
-              <div className="relative flex aspect-[16/7] w-full items-center justify-center bg-muted">
-                <div
-                  className="absolute inset-0 opacity-30"
-                  style={{ backgroundColor: selected.color }}
-                />
-                <div className="relative flex flex-col items-center gap-2 text-muted-foreground">
-                  <div className="text-4xl">🏡</div>
-                  <p className="text-sm">Neighborhood media</p>
-                </div>
-
-                {/* Close button */}
-                <button
-                  onClick={() => setSelected(null)}
-                  className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-background/90 shadow backdrop-blur-sm hover:bg-background"
-                  aria-label="Close"
-                >
-                  <X className="size-4" />
-                </button>
-              </div>
-
-              {/* Content */}
-              <div className="flex flex-col gap-4 p-6">
+        {/* ── Neighborhood side panel ── */}
+        <div
+          className={`absolute inset-y-0 right-0 z-30 flex w-80 flex-col bg-background shadow-2xl transition-transform duration-300 ease-in-out ${
+            selected ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          {selected && (
+            <>
+              {/* Header */}
+              <div className="flex items-start justify-between border-b px-6 py-5">
                 <div>
                   <div className="flex items-center gap-2">
                     <span
-                      className="inline-block h-3 w-3 rounded-full"
+                      className="inline-block h-2.5 w-2.5 rounded-full"
                       style={{ backgroundColor: selected.color }}
                     />
                     <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       {selected.type}
                     </span>
                   </div>
-                  <h2 className="mt-1 text-2xl font-bold tracking-tight">{selected.name}</h2>
-                  <p className="mt-0.5 text-sm font-medium text-muted-foreground">{selected.subtitle}</p>
+                  <h2 className="mt-1 text-xl font-bold tracking-tight">{selected.name}</h2>
+                  <p className="mt-0.5 text-sm text-muted-foreground">{selected.subtitle}</p>
                 </div>
+                <button
+                  onClick={() => setSelected(null)}
+                  className="ml-4 mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full hover:bg-muted"
+                  aria-label="Close"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
 
+              {/* Body */}
+              <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-6 py-5">
                 <p className="text-sm leading-relaxed text-muted-foreground">
                   {selected.description}
                 </p>
 
-                <div className="flex gap-3">
-                  <Button className="flex-1 gap-2" asChild>
-                    <Link href={`/residences`}>
-                      View Residences <ArrowRight className="size-4" />
-                    </Link>
-                  </Button>
-                  <Button variant="outline" onClick={() => setSelected(null)}>
-                    Close
-                  </Button>
-                </div>
+                <Button className="w-full gap-2" asChild>
+                  <Link href="/residences">
+                    View Residences <ArrowRight className="size-4" />
+                  </Link>
+                </Button>
               </div>
-            </div>
-          </>
-        )}
+            </>
+          )}
+        </div>
       </section>
     </>
   )
