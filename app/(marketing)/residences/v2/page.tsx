@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
-import { Plus, Minus, LocateFixed, X, ArrowRight } from "lucide-react"
+import { X, ArrowRight } from "lucide-react"
 
 // ─── Neighborhood data ────────────────────────────────────────────────────────
 
@@ -168,13 +168,7 @@ export default function ResidencesV2Page() {
     })
   }
 
-  function zoomBtn(dir: 1 | -1) {
-    const el = containerRef.current
-    if (!el) return
-    zoomToPoint(dir * ZOOM_STEP, el.clientWidth / 2, el.clientHeight / 2)
-  }
-
-  function handleMouseDown(e: React.MouseEvent) {
+function handleMouseDown(e: React.MouseEvent) {
     if ((e.target as HTMLElement).closest("button, a")) return
     setIsDragging(true)
     dragStartRef.current = { mouseX: e.clientX, mouseY: e.clientY, offsetX: offset.x, offsetY: offset.y }
@@ -247,40 +241,25 @@ export default function ResidencesV2Page() {
                     onMouseEnter={() => setHoveredName(n.name)}
                     onMouseLeave={() => setHoveredName(null)}
                   >
-                    {/* Colored zone */}
+                    {/* Invisible hit area */}
                     <ellipse
                       cx={n.cx} cy={n.cy} rx={n.rx} ry={n.ry}
                       transform={`rotate(${n.rotation} ${n.cx} ${n.cy})`}
-                      fill={n.color}
-                      fillOpacity={isSelected ? 0.65 : isHovered ? 0.5 : 0.3}
-                      stroke={n.color}
-                      strokeOpacity={isSelected || isHovered ? 0.9 : 0.5}
-                      strokeWidth={isSelected ? 0.4 : 0.2}
-                      style={{ transition: "fill-opacity 0.15s, stroke-opacity 0.15s" }}
+                      fill="transparent"
+                      stroke="none"
                     />
                     {/* Name label */}
                     <text
                       x={n.cx} y={n.cy}
                       textAnchor="middle" dominantBaseline="middle"
                       fill="white"
-                      fontSize={isHovered || isSelected ? 2 : 1.8}
+                      fontSize={isHovered || isSelected ? 1.4 : 1.2}
                       fontWeight="700"
                       fontFamily="sans-serif"
                       style={{ textTransform: "uppercase", letterSpacing: "0.06em", pointerEvents: "none", transition: "font-size 0.1s" }}
                       filter="url(#lbl-shadow)"
                     >
                       {n.name}
-                    </text>
-                    {/* Unit count sub-label */}
-                    <text
-                      x={n.cx} y={n.cy + 2.4}
-                      textAnchor="middle" dominantBaseline="middle"
-                      fill="white" fontSize="1.2" fontWeight="400" fontFamily="sans-serif"
-                      fillOpacity={0.9}
-                      style={{ pointerEvents: "none" }}
-                      filter="url(#lbl-shadow)"
-                    >
-                      {n.units}
                     </text>
                   </g>
                 )
@@ -291,33 +270,14 @@ export default function ResidencesV2Page() {
 
         {/* ── Map UI controls ── */}
 
-        {/* Zoom buttons */}
-        <div className="absolute bottom-6 right-6 flex flex-col gap-1.5 z-10">
-          <button onClick={() => zoomBtn(1)} className="flex h-9 w-9 items-center justify-center rounded-lg bg-background/90 shadow backdrop-blur-sm hover:bg-background" aria-label="Zoom in">
-            <Plus className="size-4" />
-          </button>
-          <button onClick={() => zoomBtn(-1)} className="flex h-9 w-9 items-center justify-center rounded-lg bg-background/90 shadow backdrop-blur-sm hover:bg-background" aria-label="Zoom out">
-            <Minus className="size-4" />
-          </button>
-          <button onClick={() => { setScale(1); setOffset({ x: 0, y: 0 }) }} className="flex h-9 w-9 items-center justify-center rounded-lg bg-background/90 shadow backdrop-blur-sm hover:bg-background" aria-label="Reset view">
-            <LocateFixed className="size-4" />
-          </button>
-        </div>
-
-        {/* Scale indicator */}
+{/* Scale indicator */}
         {scale > 1 && (
           <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 rounded-full bg-background/80 px-3 py-1 text-xs font-medium shadow backdrop-blur-sm">
             {Math.round(scale * 100)}%
           </div>
         )}
 
-        {/* Legend */}
-        <div className="absolute bottom-6 left-6 z-10 rounded-lg bg-background/90 px-3 py-2 text-xs text-muted-foreground shadow backdrop-blur-sm">
-          <p className="font-medium text-foreground">Starkdale Farms</p>
-          <p>658 acres · Upstate New York</p>
-        </div>
-
-        {/* Hint */}
+{/* Hint */}
         {!selected && (
           <div className="absolute left-1/2 top-6 z-10 -translate-x-1/2 rounded-full bg-background/80 px-4 py-1.5 text-xs font-medium shadow backdrop-blur-sm">
             Click a neighborhood to explore
