@@ -61,6 +61,7 @@ const NAV_ITEMS: NavItem[] = [
     href: "/residences",
     children: [
       { title: "All Residences", href: "/residences" },
+      { title: "All Residences - 2", href: "/residences/v2" },
       { title: "Multifamily Residences (Apartments)", href: "/residences/multifamily" },
       { title: "Custom Single-Family Homes", href: "/residences/single-family" },
       { title: "Neighborhoods", href: "/residences/neighborhoods" },
