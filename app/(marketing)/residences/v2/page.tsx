@@ -216,30 +216,30 @@ export default function ResidencesV2Page() {
 
         {/* ── Neighborhood side panel ── */}
         <div
-          className={`absolute inset-y-0 right-0 z-30 flex w-80 flex-col bg-background shadow-2xl transition-transform duration-300 ease-in-out ${
+          className={`absolute inset-y-0 right-0 z-30 flex w-80 flex-col border-l border-white/10 bg-white/10 shadow-2xl backdrop-blur-xl transition-transform duration-300 ease-in-out ${
             selected ? "translate-x-0" : "translate-x-full"
           }`}
         >
           {selected && (
             <>
               {/* Header */}
-              <div className="flex items-start justify-between border-b px-6 py-5">
+              <div className="flex items-start justify-between border-b border-white/15 px-6 py-5">
                 <div>
                   <div className="flex items-center gap-2">
                     <span
                       className="inline-block h-2.5 w-2.5 rounded-full"
                       style={{ backgroundColor: selected.color }}
                     />
-                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <span className="text-xs font-medium uppercase tracking-wider text-white/60">
                       {selected.type}
                     </span>
                   </div>
-                  <h2 className="mt-1 text-xl font-bold tracking-tight">{selected.name}</h2>
-                  <p className="mt-0.5 text-sm text-muted-foreground">{selected.subtitle}</p>
+                  <h2 className="mt-1 text-xl font-bold tracking-tight text-white">{selected.name}</h2>
+                  <p className="mt-0.5 text-sm text-white/70">{selected.subtitle}</p>
                 </div>
                 <button
                   onClick={() => setSelected(null)}
-                  className="ml-4 mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full hover:bg-muted"
+                  className="ml-4 mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white hover:bg-white/15"
                   aria-label="Close"
                 >
                   <X className="size-4" />
@@ -248,11 +248,11 @@ export default function ResidencesV2Page() {
 
               {/* Body */}
               <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-6 py-5">
-                <p className="text-sm leading-relaxed text-muted-foreground">
+                <p className="text-sm leading-relaxed text-white/75">
                   {selected.description}
                 </p>
 
-                <Button className="w-full gap-2" asChild>
+                <Button className="w-full gap-2 bg-white/20 text-white hover:bg-white/30 border border-white/20" variant="outline" asChild>
                   <Link href="/residences">
                     View Residences <ArrowRight className="size-4" />
                   </Link>
