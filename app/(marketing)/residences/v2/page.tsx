@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { PageHeader } from "@/components/page-header"
@@ -126,63 +126,11 @@ const NEIGHBORHOODS: NeighborhoodData[] = [
   },
 ]
 
-// ─── Zoom / pan constants ─────────────────────────────────────────────────────
-
-const MIN_SCALE = 1
-const MAX_SCALE = 6
-const ZOOM_STEP = 0.5
-
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function ResidencesV2Page() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [scale, setScale] = useState(1)
-  const [offset, setOffset] = useState({ x: 0, y: 0 })
-  const [isDragging, setIsDragging] = useState(false)
-  const dragStartRef = useRef({ mouseX: 0, mouseY: 0, offsetX: 0, offsetY: 0 })
   const [hoveredName, setHoveredName] = useState<string | null>(null)
   const [selected, setSelected] = useState<NeighborhoodData | null>(null)
-
-  // Wheel zoom
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
-    function onWheel(e: WheelEvent) {
-      e.preventDefault()
-      const rect = el!.getBoundingClientRect()
-      const mx = e.clientX - rect.left
-      const my = e.clientY - rect.top
-      const delta = e.deltaY > 0 ? -0.15 : 0.15
-      zoomToPoint(delta, mx, my)
-    }
-    el.addEventListener("wheel", onWheel, { passive: false })
-    return () => el.removeEventListener("wheel", onWheel)
-  }, [scale, offset])
-
-  function zoomToPoint(delta: number, mx: number, my: number) {
-    setScale((prev) => {
-      const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, prev + delta * prev))
-      const factor = next / prev
-      setOffset((o) => ({ x: mx - factor * (mx - o.x), y: my - factor * (my - o.y) }))
-      return next
-    })
-  }
-
-function handleMouseDown(e: React.MouseEvent) {
-    if ((e.target as HTMLElement).closest("button, a")) return
-    setIsDragging(true)
-    dragStartRef.current = { mouseX: e.clientX, mouseY: e.clientY, offsetX: offset.x, offsetY: offset.y }
-  }
-
-  function handleMouseMove(e: React.MouseEvent) {
-    if (!isDragging) return
-    setOffset({
-      x: dragStartRef.current.offsetX + e.clientX - dragStartRef.current.mouseX,
-      y: dragStartRef.current.offsetY + e.clientY - dragStartRef.current.mouseY,
-    })
-  }
-
-  const transform = `translate(${offset.x}px, ${offset.y}px) scale(${scale})`
 
   return (
     <>
@@ -194,20 +142,8 @@ function handleMouseDown(e: React.MouseEvent) {
 
       {/* Full-width map */}
       <section className="relative h-[calc(100vh-10rem)] w-full overflow-hidden bg-muted">
-        {/* Pan/zoom container */}
-        <div
-          ref={containerRef}
-          className="absolute inset-0"
-          style={{ cursor: isDragging ? "grabbing" : "grab" }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={() => setIsDragging(false)}
-          onMouseLeave={() => setIsDragging(false)}
-        >
-          <div
-            className="absolute inset-0 origin-top-left will-change-transform"
-            style={{ transform, transition: isDragging ? "none" : "transform 0.05s ease-out" }}
-          >
+        <div className="absolute inset-0">
+          <div className="absolute inset-0">
             <Image
               src="/starkdale-aerial.jpg"
               alt="Starkdale Farms aerial view"
@@ -270,12 +206,6 @@ function handleMouseDown(e: React.MouseEvent) {
 
         {/* ── Map UI controls ── */}
 
-{/* Scale indicator */}
-        {scale > 1 && (
-          <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 rounded-full bg-background/80 px-3 py-1 text-xs font-medium shadow backdrop-blur-sm">
-            {Math.round(scale * 100)}%
-          </div>
-        )}
 
 {/* Hint */}
         {!selected && (
