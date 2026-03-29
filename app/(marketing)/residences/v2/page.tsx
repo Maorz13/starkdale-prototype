@@ -1,600 +1,396 @@
 "use client"
 
-import { useState } from "react"
-import { PageHeader } from "@/components/page-header"
-import { PropertyCard } from "@/components/property-card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Search, LayoutGrid, List, Bed, Bath, Maximize, Heart } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
-import { ResidencesMap } from "@/components/residences-map"
-import { ResidencesFilters } from "@/components/residences-filters"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
-import { ResidenceDetail } from "@/components/residence-detail"
-import {
-  Property,
-  ResidenceFilters,
-  DEFAULT_FILTERS,
-  applyFilters,
-  countActiveFilters,
-} from "@/lib/residence-types"
+import { PageHeader } from "@/components/page-header"
+import { Button } from "@/components/ui/button"
+import { Plus, Minus, LocateFixed, X, ArrowRight } from "lucide-react"
 
-const NEIGHBORHOODS_META = [
-  { name: "Cascades",        subtitle: "74 multifamily residences with mountain views" },
-  { name: "East Ridge",      subtitle: "118 residences with sweeping ridge panoramas" },
-  { name: "West Ridge",      subtitle: "103 homes — multifamily to estate" },
-  { name: "The Square",      subtitle: "Steps from retail, dining & cultural venues" },
-  { name: "The Crescent",    subtitle: "18 custom single-family homes" },
-  { name: "Play Village",    subtitle: "39 family-forward residences" },
-  { name: "Lakeside",        subtitle: "Waterfront living on the 10-acre lake" },
-  { name: "Base Camp",       subtitle: "Adventure-forward cabins & lodges" },
-  { name: "Private Reserve", subtitle: "10 ultra-private estate parcels" },
-]
+// ─── Neighborhood data ────────────────────────────────────────────────────────
 
-const SAMPLE_PROPERTIES: Property[] = [
-  // Cascades (multifamily, 8 units)
-  {
-    id: "cas-101", title: "Cascades Residence 101", neighborhood: "Cascades",
-    price: "$1,250,000", beds: 3, baths: 2, sqft: "2,400", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home", "EV Charging", "Air Quality Monitoring"],
-    closeTo: ["The Square", "Trails", "Spa & Wellness"],
-  },
-  {
-    id: "cas-204", title: "Cascades Residence 204", neighborhood: "Cascades",
-    price: "$975,000", beds: 2, baths: 2, sqft: "1,850", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home", "Air Quality Monitoring"],
-    closeTo: ["The Square", "Trails", "Spa & Wellness"],
-  },
-  {
-    id: "cas-308", title: "Cascades Residence 308", neighborhood: "Cascades",
-    price: "$1,420,000", beds: 3, baths: 2, sqft: "2,600", type: "Multifamily",
-    availability: "Reserved", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home", "EV Charging", "Air Quality Monitoring"],
-    closeTo: ["The Square", "Trails", "Spa & Wellness"],
-  },
-  {
-    id: "cas-412", title: "Cascades Penthouse 412", neighborhood: "Cascades",
-    price: "$1,895,000", beds: 4, baths: 3, sqft: "3,400", type: "Multifamily",
-    availability: "Available", parking: 2, lotSize: 0,
-    amenities: ["Pool", "Terrace", "Gym", "Smart Home", "EV Charging", "Chef's Kitchen", "Air Quality Monitoring"],
-    closeTo: ["The Square", "Trails", "Spa & Wellness"],
-  },
-  {
-    id: "cas-115", title: "Cascades Residence 115", neighborhood: "Cascades",
-    price: "$820,000", beds: 2, baths: 1, sqft: "1,500", type: "Multifamily",
-    availability: "Coming Soon", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home"],
-    closeTo: ["The Square", "Trails", "Spa & Wellness"],
-  },
-  {
-    id: "cas-220", title: "Cascades Residence 220", neighborhood: "Cascades",
-    price: "$1,090,000", beds: 3, baths: 2, sqft: "2,100", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home", "Air Quality Monitoring"],
-    closeTo: ["The Square", "Trails", "Spa & Wellness"],
-  },
-  {
-    id: "cas-318", title: "Cascades Residence 318", neighborhood: "Cascades",
-    price: "$1,340,000", beds: 3, baths: 2, sqft: "2,500", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home", "EV Charging"],
-    closeTo: ["The Square", "Trails", "Spa & Wellness"],
-  },
-  {
-    id: "cas-405", title: "Cascades Loft 405", neighborhood: "Cascades",
-    price: "$760,000", beds: 1, baths: 1, sqft: "1,200", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Gym", "Smart Home"],
-    closeTo: ["The Square", "Trails", "Spa & Wellness"],
-  },
-
-  // The Square (multifamily, 8 units)
-  {
-    id: "sq-101", title: "The Square Unit 101", neighborhood: "The Square",
-    price: "$695,000", beds: 1, baths: 1, sqft: "1,050", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home"],
-    closeTo: ["The Square", "Spa & Wellness", "Play Village"],
-  },
-  {
-    id: "sq-208", title: "The Square Unit 208", neighborhood: "The Square",
-    price: "$890,000", beds: 2, baths: 2, sqft: "1,650", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home", "Air Quality Monitoring"],
-    closeTo: ["The Square", "Spa & Wellness", "Play Village"],
-  },
-  {
-    id: "sq-312", title: "The Square Unit 312", neighborhood: "The Square",
-    price: "$1,050,000", beds: 3, baths: 2, sqft: "2,000", type: "Multifamily",
-    availability: "Reserved", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home", "EV Charging"],
-    closeTo: ["The Square", "Spa & Wellness", "Play Village"],
-  },
-  {
-    id: "sq-402", title: "The Square Penthouse 402", neighborhood: "The Square",
-    price: "$1,650,000", beds: 3, baths: 3, sqft: "2,800", type: "Multifamily",
-    availability: "Available", parking: 2, lotSize: 0,
-    amenities: ["Pool", "Terrace", "Gym", "Smart Home", "EV Charging", "Chef's Kitchen", "Air Quality Monitoring"],
-    closeTo: ["The Square", "Spa & Wellness", "Play Village"],
-  },
-  {
-    id: "sq-115", title: "The Square Unit 115", neighborhood: "The Square",
-    price: "$745,000", beds: 2, baths: 1, sqft: "1,300", type: "Multifamily",
-    availability: "Coming Soon", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home"],
-    closeTo: ["The Square", "Spa & Wellness", "Play Village"],
-  },
-  {
-    id: "sq-222", title: "The Square Unit 222", neighborhood: "The Square",
-    price: "$925,000", beds: 2, baths: 2, sqft: "1,700", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home", "Air Quality Monitoring"],
-    closeTo: ["The Square", "Spa & Wellness", "Play Village"],
-  },
-  {
-    id: "sq-305", title: "The Square Unit 305", neighborhood: "The Square",
-    price: "$1,120,000", beds: 3, baths: 2, sqft: "2,100", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home", "EV Charging"],
-    closeTo: ["The Square", "Spa & Wellness", "Play Village"],
-  },
-  {
-    id: "sq-410", title: "The Square Loft 410", neighborhood: "The Square",
-    price: "$650,000", beds: 1, baths: 1, sqft: "990", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Gym", "Smart Home"],
-    closeTo: ["The Square", "Spa & Wellness", "Play Village"],
-  },
-
-  // East Ridge (multifamily, 7 units)
-  {
-    id: "er-104", title: "East Ridge Residence 104", neighborhood: "East Ridge",
-    price: "$1,050,000", beds: 2, baths: 2, sqft: "1,900", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home", "Air Quality Monitoring"],
-    closeTo: ["The Square", "Trails"],
-  },
-  {
-    id: "er-211", title: "East Ridge Residence 211", neighborhood: "East Ridge",
-    price: "$1,350,000", beds: 3, baths: 2, sqft: "2,450", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home", "EV Charging"],
-    closeTo: ["The Square", "Trails"],
-  },
-  {
-    id: "er-318", title: "East Ridge Villa 318", neighborhood: "East Ridge",
-    price: "$1,750,000", beds: 4, baths: 3, sqft: "3,200", type: "Multifamily",
-    availability: "Reserved", parking: 2, lotSize: 0,
-    amenities: ["Pool", "Terrace", "Gym", "Smart Home", "EV Charging", "Air Quality Monitoring"],
-    closeTo: ["The Square", "Trails"],
-  },
-  {
-    id: "er-422", title: "East Ridge Penthouse 422", neighborhood: "East Ridge",
-    price: "$2,100,000", beds: 4, baths: 3, sqft: "3,600", type: "Multifamily",
-    availability: "Available", parking: 2, lotSize: 0,
-    amenities: ["Pool", "Terrace", "Gym", "Smart Home", "EV Charging", "Chef's Kitchen", "Air Quality Monitoring"],
-    closeTo: ["The Square", "Trails"],
-  },
-  {
-    id: "er-108", title: "East Ridge Residence 108", neighborhood: "East Ridge",
-    price: "$980,000", beds: 2, baths: 2, sqft: "1,750", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home"],
-    closeTo: ["The Square", "Trails"],
-  },
-  {
-    id: "er-214", title: "East Ridge Residence 214", neighborhood: "East Ridge",
-    price: "$1,180,000", beds: 3, baths: 2, sqft: "2,200", type: "Multifamily",
-    availability: "Coming Soon", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home", "Air Quality Monitoring"],
-    closeTo: ["The Square", "Trails"],
-  },
-  {
-    id: "er-320", title: "East Ridge Loft 320", neighborhood: "East Ridge",
-    price: "$820,000", beds: 1, baths: 1, sqft: "1,350", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Gym", "Smart Home"],
-    closeTo: ["The Square", "Trails"],
-  },
-
-  // West Ridge (mix, 6 units)
-  {
-    id: "wr-101", title: "West Ridge Residence 101", neighborhood: "West Ridge",
-    price: "$1,480,000", beds: 3, baths: 2, sqft: "2,700", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home", "Air Quality Monitoring"],
-    closeTo: ["Trails", "Base Camp"],
-  },
-  {
-    id: "wr-205", title: "West Ridge Home 205", neighborhood: "West Ridge",
-    price: "$2,100,000", beds: 4, baths: 3, sqft: "3,800", type: "Single-Family",
-    availability: "Available", parking: 2, lotSize: 1.5,
-    amenities: ["Garden", "Terrace", "Smart Home", "EV Charging", "Home Office", "Air Quality Monitoring"],
-    closeTo: ["Trails", "Base Camp"],
-  },
-  {
-    id: "wr-08", title: "West Ridge Estate 8", neighborhood: "West Ridge",
-    price: "$3,400,000", beds: 5, baths: 4, sqft: "5,000", type: "Single-Family",
-    availability: "Available", parking: 3, lotSize: 2.5,
-    amenities: ["Pool", "Garden", "Terrace", "Smart Home", "EV Charging", "Home Office", "Wine Cellar", "Sauna", "Air Quality Monitoring"],
-    closeTo: ["Trails", "Base Camp"],
-  },
-  {
-    id: "wr-304", title: "West Ridge Residence 304", neighborhood: "West Ridge",
-    price: "$1,650,000", beds: 3, baths: 2, sqft: "2,900", type: "Multifamily",
-    availability: "Reserved", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Gym", "Smart Home", "EV Charging"],
-    closeTo: ["Trails", "Base Camp"],
-  },
-  {
-    id: "wr-12", title: "West Ridge Home 12", neighborhood: "West Ridge",
-    price: "$2,550,000", beds: 4, baths: 3, sqft: "4,200", type: "Single-Family",
-    availability: "Available", parking: 2, lotSize: 2.0,
-    amenities: ["Garden", "Terrace", "Smart Home", "EV Charging", "Home Office", "Wine Cellar", "Air Quality Monitoring"],
-    closeTo: ["Trails", "Base Camp"],
-  },
-  {
-    id: "wr-408", title: "West Ridge Penthouse 408", neighborhood: "West Ridge",
-    price: "$2,200,000", beds: 4, baths: 3, sqft: "3,500", type: "Multifamily",
-    availability: "Coming Soon", parking: 2, lotSize: 0,
-    amenities: ["Pool", "Terrace", "Gym", "Smart Home", "EV Charging", "Chef's Kitchen"],
-    closeTo: ["Trails", "Base Camp"],
-  },
-
-  // Play Village (multifamily, 5 units)
-  {
-    id: "pv-08", title: "Play Village Unit 8", neighborhood: "Play Village",
-    price: "$785,000", beds: 2, baths: 2, sqft: "1,450", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Playroom", "Smart Home"],
-    closeTo: ["The Square", "Play Village", "Lake"],
-  },
-  {
-    id: "pv-17", title: "Play Village Unit 17", neighborhood: "Play Village",
-    price: "$920,000", beds: 3, baths: 2, sqft: "1,800", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Playroom", "Smart Home", "Air Quality Monitoring"],
-    closeTo: ["The Square", "Play Village", "Lake"],
-  },
-  {
-    id: "pv-22", title: "Play Village Unit 22", neighborhood: "Play Village",
-    price: "$980,000", beds: 3, baths: 2, sqft: "1,900", type: "Multifamily",
-    availability: "Reserved", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Playroom", "Smart Home", "EV Charging"],
-    closeTo: ["The Square", "Play Village", "Lake"],
-  },
-  {
-    id: "pv-31", title: "Play Village Unit 31", neighborhood: "Play Village",
-    price: "$850,000", beds: 2, baths: 2, sqft: "1,600", type: "Multifamily",
-    availability: "Available", parking: 1, lotSize: 0,
-    amenities: ["Pool", "Garden", "Playroom", "Smart Home"],
-    closeTo: ["The Square", "Play Village", "Lake"],
-  },
-  {
-    id: "pv-39", title: "Play Village Townhome 39", neighborhood: "Play Village",
-    price: "$1,150,000", beds: 3, baths: 2, sqft: "2,200", type: "Multifamily",
-    availability: "Available", parking: 2, lotSize: 0,
-    amenities: ["Pool", "Garden", "Playroom", "Smart Home", "EV Charging", "Air Quality Monitoring"],
-    closeTo: ["The Square", "Play Village", "Lake"],
-  },
-
-  // The Crescent (single-family, 5 units)
-  {
-    id: "cr-03", title: "The Crescent Home 3", neighborhood: "The Crescent",
-    price: "$2,650,000", beds: 4, baths: 3, sqft: "3,800", type: "Single-Family",
-    availability: "Available", parking: 2, lotSize: 1.5,
-    amenities: ["Garden", "Terrace", "Smart Home", "EV Charging", "Home Office", "Air Quality Monitoring"],
-    closeTo: ["Trails", "Spa & Wellness"],
-  },
-  {
-    id: "cr-07", title: "The Crescent Home 7", neighborhood: "The Crescent",
-    price: "$3,200,000", beds: 4, baths: 3, sqft: "4,100", type: "Single-Family",
-    availability: "Available", parking: 2, lotSize: 2.0,
-    amenities: ["Pool", "Garden", "Terrace", "Smart Home", "EV Charging", "Home Office", "Wine Cellar"],
-    closeTo: ["Trails", "Spa & Wellness"],
-  },
-  {
-    id: "cr-11", title: "The Crescent Estate 11", neighborhood: "The Crescent",
-    price: "$4,100,000", beds: 5, baths: 4, sqft: "5,500", type: "Single-Family",
-    availability: "Reserved", parking: 3, lotSize: 3.0,
-    amenities: ["Pool", "Garden", "Terrace", "Smart Home", "EV Charging", "Home Office", "Wine Cellar", "Sauna", "Chef's Kitchen", "Air Quality Monitoring"],
-    closeTo: ["Trails", "Spa & Wellness"],
-  },
-  {
-    id: "cr-14", title: "The Crescent Home 14", neighborhood: "The Crescent",
-    price: "$2,850,000", beds: 4, baths: 3, sqft: "4,000", type: "Single-Family",
-    availability: "Available", parking: 2, lotSize: 1.8,
-    amenities: ["Garden", "Terrace", "Smart Home", "EV Charging", "Home Office", "Air Quality Monitoring"],
-    closeTo: ["Trails", "Spa & Wellness"],
-  },
-  {
-    id: "cr-18", title: "The Crescent Home 18", neighborhood: "The Crescent",
-    price: "$3,500,000", beds: 5, baths: 4, sqft: "4,700", type: "Single-Family",
-    availability: "Coming Soon", parking: 3, lotSize: 2.5,
-    amenities: ["Pool", "Garden", "Terrace", "Smart Home", "EV Charging", "Home Office", "Wine Cellar", "Sauna"],
-    closeTo: ["Trails", "Spa & Wellness"],
-  },
-
-  // Lakeside (mix, 4 units)
-  {
-    id: "ls-04", title: "Lakeside Cabin 4", neighborhood: "Lakeside",
-    price: "$1,850,000", beds: 3, baths: 2, sqft: "2,400", type: "Single-Family",
-    availability: "Available", parking: 2, lotSize: 1.0,
-    amenities: ["Garden", "Terrace", "Smart Home", "EV Charging", "Air Quality Monitoring"],
-    closeTo: ["Lake", "Trails"],
-  },
-  {
-    id: "ls-10", title: "Lakeside Residence 10", neighborhood: "Lakeside",
-    price: "$2,800,000", beds: 4, baths: 3, sqft: "3,600", type: "Single-Family",
-    availability: "Available", parking: 2, lotSize: 1.5,
-    amenities: ["Pool", "Garden", "Terrace", "Smart Home", "EV Charging", "Home Office", "Air Quality Monitoring"],
-    closeTo: ["Lake", "Trails"],
-  },
-  {
-    id: "ls-16", title: "Lakeside Villa 16", neighborhood: "Lakeside",
-    price: "$3,650,000", beds: 5, baths: 4, sqft: "4,800", type: "Single-Family",
-    availability: "Reserved", parking: 3, lotSize: 2.5,
-    amenities: ["Pool", "Garden", "Terrace", "Smart Home", "EV Charging", "Home Office", "Wine Cellar", "Sauna", "Air Quality Monitoring"],
-    closeTo: ["Lake", "Trails"],
-  },
-  {
-    id: "ls-22", title: "Lakeside Retreat 22", neighborhood: "Lakeside",
-    price: "$2,200,000", beds: 4, baths: 3, sqft: "3,100", type: "Single-Family",
-    availability: "Available", parking: 2, lotSize: 1.2,
-    amenities: ["Garden", "Terrace", "Smart Home", "EV Charging", "Air Quality Monitoring"],
-    closeTo: ["Lake", "Trails"],
-  },
-
-  // Base Camp (single-family, 4 units)
-  {
-    id: "bc-02", title: "Base Camp Cabin 2", neighborhood: "Base Camp",
-    price: "$1,200,000", beds: 2, baths: 2, sqft: "1,950", type: "Single-Family",
-    availability: "Available", parking: 2, lotSize: 1.0,
-    amenities: ["Garden", "Smart Home", "EV Charging", "Air Quality Monitoring"],
-    closeTo: ["Trails", "Base Camp", "Lake"],
-  },
-  {
-    id: "bc-03", title: "Base Camp Cabin 3", neighborhood: "Base Camp",
-    price: "$1,450,000", beds: 3, baths: 2, sqft: "2,200", type: "Single-Family",
-    availability: "Available", parking: 2, lotSize: 1.2,
-    amenities: ["Garden", "Smart Home", "EV Charging", "Home Office", "Air Quality Monitoring"],
-    closeTo: ["Trails", "Base Camp", "Lake"],
-  },
-  {
-    id: "bc-07", title: "Base Camp Lodge 7", neighborhood: "Base Camp",
-    price: "$1,950,000", beds: 4, baths: 3, sqft: "3,100", type: "Single-Family",
-    availability: "Reserved", parking: 2, lotSize: 2.0,
-    amenities: ["Pool", "Garden", "Smart Home", "EV Charging", "Home Office", "Sauna", "Air Quality Monitoring"],
-    closeTo: ["Trails", "Base Camp", "Lake"],
-  },
-  {
-    id: "bc-11", title: "Base Camp Chalet 11", neighborhood: "Base Camp",
-    price: "$2,350,000", beds: 4, baths: 3, sqft: "3,600", type: "Single-Family",
-    availability: "Available", parking: 3, lotSize: 2.5,
-    amenities: ["Pool", "Garden", "Terrace", "Smart Home", "EV Charging", "Home Office", "Wine Cellar", "Sauna"],
-    closeTo: ["Trails", "Base Camp", "Lake"],
-  },
-
-  // Private Reserve (single-family, 3 units)
-  {
-    id: "pr-02", title: "Private Reserve Estate 2", neighborhood: "Private Reserve",
-    price: "$5,200,000", beds: 5, baths: 5, sqft: "6,100", type: "Single-Family",
-    availability: "Available", parking: 3, lotSize: 4.0,
-    amenities: ["Pool", "Garden", "Terrace", "Smart Home", "EV Charging", "Home Office", "Wine Cellar", "Sauna", "Chef's Kitchen", "Air Quality Monitoring"],
-    closeTo: ["Trails", "Spa & Wellness"],
-  },
-  {
-    id: "pr-05", title: "Private Reserve Estate 5", neighborhood: "Private Reserve",
-    price: "$4,500,000", beds: 5, baths: 4, sqft: "5,200", type: "Single-Family",
-    availability: "Reserved", parking: 3, lotSize: 3.5,
-    amenities: ["Pool", "Garden", "Terrace", "Smart Home", "EV Charging", "Home Office", "Wine Cellar", "Sauna", "Chef's Kitchen"],
-    closeTo: ["Trails", "Spa & Wellness"],
-  },
-  {
-    id: "pr-09", title: "Private Reserve Estate 9", neighborhood: "Private Reserve",
-    price: "$6,800,000", beds: 6, baths: 6, sqft: "7,400", type: "Single-Family",
-    availability: "Coming Soon", parking: 3, lotSize: 4.0,
-    amenities: ["Pool", "Garden", "Terrace", "Playroom", "Smart Home", "EV Charging", "Home Office", "Wine Cellar", "Sauna", "Chef's Kitchen", "Air Quality Monitoring"],
-    closeTo: ["Trails", "Spa & Wellness"],
-  },
-]
-
-function PropertyListRow(property: Property & { onSelect?: () => void }) {
-  const { title, neighborhood, price, beds, baths, sqft, type, availability, onSelect } = property
-  return (
-    <div
-      className="flex cursor-pointer items-center gap-4 rounded-lg border bg-card p-4 transition-colors hover:bg-accent/5"
-      onClick={onSelect}
-    >
-      <div className="relative flex h-20 w-32 shrink-0 items-center justify-center rounded-md bg-muted text-xs text-muted-foreground">
-        Property Image
-        <Badge variant="secondary" className="absolute right-2 top-2 text-xs">
-          {type}
-        </Badge>
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="font-semibold">{title}</p>
-            <p className="text-sm text-muted-foreground">{neighborhood}</p>
-          </div>
-          <div className="flex shrink-0 flex-col items-end gap-1">
-            <p className="text-lg font-semibold">{price}</p>
-            <Badge
-              variant={
-                availability === "Available"
-                  ? "default"
-                  : availability === "Reserved"
-                  ? "secondary"
-                  : "outline"
-              }
-              className="text-xs"
-            >
-              {availability}
-            </Badge>
-          </div>
-        </div>
-        <div className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <Bed className="size-4" /> {beds} beds
-          </span>
-          <span className="flex items-center gap-1">
-            <Bath className="size-4" /> {baths} baths
-          </span>
-          <span className="flex items-center gap-1">
-            <Maximize className="size-4" /> {sqft} sqft
-          </span>
-        </div>
-      </div>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="shrink-0"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Heart className="size-4" />
-      </Button>
-    </div>
-  )
+interface NeighborhoodData {
+  name: string
+  subtitle: string
+  units: string
+  type: string
+  description: string
+  color: string
+  cx: number
+  cy: number
+  rx: number
+  ry: number
+  rotation: number
 }
 
-export default function ResidencesPageV2() {
-  const [view, setView] = useState<"list" | "grid">("list")
-  const [filters, setFilters] = useState<ResidenceFilters>(DEFAULT_FILTERS)
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null)
+const NEIGHBORHOODS: NeighborhoodData[] = [
+  {
+    name: "Cascades",
+    subtitle: "74 multifamily residences",
+    units: "74 units",
+    type: "Multifamily",
+    description:
+      "Nestled among natural water features and lush greenery, Cascades is one of Starkdale's most connected neighborhoods. Residents enjoy direct trail access, proximity to The Square, and sweeping views of the surrounding landscape. Designed for those who want nature at their doorstep without sacrificing community.",
+    color: "#84CC16",
+    cx: 13, cy: 35, rx: 10, ry: 14, rotation: 10,
+  },
+  {
+    name: "Private Reserve",
+    subtitle: "10 ultra-private estates",
+    units: "10 units",
+    type: "Single-Family",
+    description:
+      "The pinnacle of seclusion at Starkdale. Ten ultra-private estate parcels on 3–4 acre lots, set deep within the property. For those who demand absolute privacy, bespoke finishes, and the quiet confidence of owning something truly rare.",
+    color: "#EF4444",
+    cx: 24, cy: 21, rx: 5, ry: 6.5, rotation: 0,
+  },
+  {
+    name: "West Ridge",
+    subtitle: "103 residences — multifamily to estate",
+    units: "103 units",
+    type: "Mixed",
+    description:
+      "West Ridge spans the full spectrum — from thoughtfully designed multifamily residences to grand single-family estates. Defined by ridge views, trail access, and a strong sense of community. An ideal neighborhood for those who want flexibility in how they live.",
+    color: "#F97316",
+    cx: 27, cy: 50, rx: 8, ry: 13, rotation: 15,
+  },
+  {
+    name: "Base Camp",
+    subtitle: "Adventure-forward cabins & lodges",
+    units: "Cabins & Lodges",
+    type: "Single-Family",
+    description:
+      "Designed for those who live for the outdoors. Base Camp is the launch point for Starkdale's 22 km trail network, winter sports, adventure races, and the 10-acre lake. Homes here are built for the elements — warm, grounded, and always ready for the next adventure.",
+    color: "#CA8A04",
+    cx: 39, cy: 21, rx: 6, ry: 7, rotation: 0,
+  },
+  {
+    name: "Lakeside",
+    subtitle: "22 waterfront homes",
+    units: "22 keys",
+    type: "Single-Family",
+    description:
+      "Wake up to water every morning. Lakeside homes sit directly on Starkdale's 10-acre lake, with private access to kayaking, paddleboarding, and the beach barn. A rare combination of serenity and recreation in an intimate, nature-immersed enclave.",
+    color: "#06B6D4",
+    cx: 42, cy: 44, rx: 4.5, ry: 10, rotation: 8,
+  },
+  {
+    name: "The Square",
+    subtitle: "115 units above the pedestrian core",
+    units: "115 units + 22 keys",
+    type: "Multifamily",
+    description:
+      "Live at the heart of it all. The Square places residents above 70,000 SF of retail, dining, and cultural venues. Everything — the farmer's market, music hall, co-working spaces, and community events — is steps from your front door. Starkdale's most vibrant address.",
+    color: "#B91C1C",
+    cx: 52, cy: 20, rx: 7, ry: 6.5, rotation: 0,
+  },
+  {
+    name: "Play Village",
+    subtitle: "39 family-forward residences",
+    units: "39 units",
+    type: "Multifamily",
+    description:
+      "Starkdale's neighborhood built with families in mind. Play Village surrounds 11 acres of sports and recreation — tennis, pickleball, bowling, basketball, soccer — and offers integrated childcare. A community where children thrive and parents can breathe.",
+    color: "#16A34A",
+    cx: 58, cy: 41, rx: 5, ry: 5.5, rotation: 0,
+  },
+  {
+    name: "The Crescent",
+    subtitle: "18 custom single-family homes",
+    units: "18 units",
+    type: "Single-Family",
+    description:
+      "Sweeping views and quiet exclusivity define The Crescent. Eighteen custom single-family homes on generous lots, each one a bespoke expression of its owner. Situated at one of Starkdale's highest elevations, with direct trail access and proximity to the Spa & Wellness Center.",
+    color: "#D97706",
+    cx: 64, cy: 52, rx: 8.5, ry: 9.5, rotation: -10,
+  },
+  {
+    name: "The Resort",
+    subtitle: "170 hotel keys · Spa & Longevity",
+    units: "170 keys",
+    type: "Hospitality",
+    description:
+      "Starkdale's hospitality anchor — 170 keys across suites, forest cabins, and Onsen villas surrounding the 100,000 SF Spa & Longevity Center. Home to RoseBar Longevity with Dr. Mark Hyman. Residents enjoy full member access to thermal therapy, biohacking, and world-class fitness.",
+    color: "#DB2777",
+    cx: 71, cy: 18, rx: 7, ry: 7.5, rotation: 0,
+  },
+  {
+    name: "East Ridge",
+    subtitle: "118 residences with ridge panoramas",
+    units: "118 units",
+    type: "Multifamily",
+    description:
+      "Panoramic ridge views and health-forward design define East Ridge. 118 residences built with biophilic principles — natural materials, floor-to-ceiling windows, and smart air quality systems. One of Starkdale's largest and most dynamic neighborhoods, with a strong sense of community and direct trail access.",
+    color: "#65A30D",
+    cx: 80, cy: 45, rx: 7.5, ry: 9, rotation: -15,
+  },
+]
 
-  const visibleProperties = applyFilters(SAMPLE_PROPERTIES, filters)
-  const activeCount = countActiveFilters(filters)
+// ─── Zoom / pan constants ─────────────────────────────────────────────────────
+
+const MIN_SCALE = 1
+const MAX_SCALE = 6
+const ZOOM_STEP = 0.5
+
+// ─── Page ────────────────────────────────────────────────────────────────────
+
+export default function ResidencesV2Page() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [scale, setScale] = useState(1)
+  const [offset, setOffset] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const dragStartRef = useRef({ mouseX: 0, mouseY: 0, offsetX: 0, offsetY: 0 })
+  const [hoveredName, setHoveredName] = useState<string | null>(null)
+  const [selected, setSelected] = useState<NeighborhoodData | null>(null)
+
+  // Wheel zoom
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    function onWheel(e: WheelEvent) {
+      e.preventDefault()
+      const rect = el!.getBoundingClientRect()
+      const mx = e.clientX - rect.left
+      const my = e.clientY - rect.top
+      const delta = e.deltaY > 0 ? -0.15 : 0.15
+      zoomToPoint(delta, mx, my)
+    }
+    el.addEventListener("wheel", onWheel, { passive: false })
+    return () => el.removeEventListener("wheel", onWheel)
+  }, [scale, offset])
+
+  function zoomToPoint(delta: number, mx: number, my: number) {
+    setScale((prev) => {
+      const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, prev + delta * prev))
+      const factor = next / prev
+      setOffset((o) => ({ x: mx - factor * (mx - o.x), y: my - factor * (my - o.y) }))
+      return next
+    })
+  }
+
+  function zoomBtn(dir: 1 | -1) {
+    const el = containerRef.current
+    if (!el) return
+    zoomToPoint(dir * ZOOM_STEP, el.clientWidth / 2, el.clientHeight / 2)
+  }
+
+  function handleMouseDown(e: React.MouseEvent) {
+    if ((e.target as HTMLElement).closest("button, a")) return
+    setIsDragging(true)
+    dragStartRef.current = { mouseX: e.clientX, mouseY: e.clientY, offsetX: offset.x, offsetY: offset.y }
+  }
+
+  function handleMouseMove(e: React.MouseEvent) {
+    if (!isDragging) return
+    setOffset({
+      x: dragStartRef.current.offsetX + e.clientX - dragStartRef.current.mouseX,
+      y: dragStartRef.current.offsetY + e.clientY - dragStartRef.current.mouseY,
+    })
+  }
+
+  const transform = `translate(${offset.x}px, ${offset.y}px) scale(${scale})`
 
   return (
     <>
-      <Sheet open={!!selectedProperty} onOpenChange={(open) => { if (!open) setSelectedProperty(null) }}>
-        <SheetContent
-          side="bottom"
-          showCloseButton={false}
-          className="!h-[calc(100%-48px)] !w-full !max-w-full rounded-t-xl p-0"
-        >
-          {selectedProperty && <ResidenceDetail property={selectedProperty} />}
-        </SheetContent>
-      </Sheet>
-
       <PageHeader
-        breadcrumbs={[{ label: "The Residences", href: "/residences" }, { label: "All Residences - 2" }]}
-        title="All Residences - 2"
-        description="Browse 330 multifamily units and 113 custom single-family homes across 10 unique neighborhoods on 658 acres."
-      >
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Search residences..." className="w-64 pl-9" />
-          </div>
-          <ResidencesFilters
-            filters={filters}
-            onChange={setFilters}
-            activeCount={activeCount}
-          />
-          <Button variant="outline" asChild>
-            <Link href="/residences/compare">Compare Properties</Link>
-          </Button>
-        </div>
-      </PageHeader>
+        breadcrumbs={[{ label: "The Residences", href: "/residences" }, { label: "Explore by Neighborhood" }]}
+        title="Explore by Neighborhood"
+        description="Click any neighborhood on the map to discover its homes, character, and amenities."
+      />
 
-      {/* Neighborhood strip */}
-      <div className="border-b bg-background px-4 py-4 sm:px-6 lg:px-8">
-        <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {NEIGHBORHOODS_META.map(({ name, subtitle }) => {
-            const active = filters.neighborhood === name
-            return (
-              <button
-                key={name}
-                onClick={() =>
-                  setFilters((f) => ({ ...f, neighborhood: active ? "all" : name }))
-                }
-                className={`flex shrink-0 items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors hover:bg-accent/5 ${
-                  active ? "border-foreground bg-foreground/5" : "border-border"
-                }`}
-              >
-                <div className="size-12 shrink-0 rounded-md bg-muted" />
-                <div>
-                  <p className="text-sm font-medium leading-tight">{name}</p>
-                  <p className="mt-0.5 max-w-[160px] text-xs leading-tight text-muted-foreground">
-                    {subtitle}
-                  </p>
+      {/* Full-width map */}
+      <section className="relative h-[calc(100vh-10rem)] w-full overflow-hidden bg-muted">
+        {/* Pan/zoom container */}
+        <div
+          ref={containerRef}
+          className="absolute inset-0"
+          style={{ cursor: isDragging ? "grabbing" : "grab" }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={() => setIsDragging(false)}
+          onMouseLeave={() => setIsDragging(false)}
+        >
+          <div
+            className="absolute inset-0 origin-top-left will-change-transform"
+            style={{ transform, transition: isDragging ? "none" : "transform 0.05s ease-out" }}
+          >
+            <Image
+              src="/starkdale-aerial.jpg"
+              alt="Starkdale Farms aerial view"
+              fill
+              className="object-cover object-center"
+              priority
+              draggable={false}
+            />
+            <div className="absolute inset-0 bg-black/25" />
+
+            {/* Neighborhood SVG */}
+            <svg
+              viewBox="0 0 100 56.25"
+              preserveAspectRatio="xMidYMid slice"
+              className="absolute inset-0 h-full w-full"
+            >
+              <defs>
+                <filter id="lbl-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="0.3" stdDeviation="0.6" floodColor="black" floodOpacity="0.8" />
+                </filter>
+              </defs>
+
+              {NEIGHBORHOODS.map((n) => {
+                const isHovered = hoveredName === n.name
+                const isSelected = selected?.name === n.name
+                return (
+                  <g
+                    key={n.name}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setSelected(n)}
+                    onMouseEnter={() => setHoveredName(n.name)}
+                    onMouseLeave={() => setHoveredName(null)}
+                  >
+                    {/* Colored zone */}
+                    <ellipse
+                      cx={n.cx} cy={n.cy} rx={n.rx} ry={n.ry}
+                      transform={`rotate(${n.rotation} ${n.cx} ${n.cy})`}
+                      fill={n.color}
+                      fillOpacity={isSelected ? 0.65 : isHovered ? 0.5 : 0.3}
+                      stroke={n.color}
+                      strokeOpacity={isSelected || isHovered ? 0.9 : 0.5}
+                      strokeWidth={isSelected ? 0.4 : 0.2}
+                      style={{ transition: "fill-opacity 0.15s, stroke-opacity 0.15s" }}
+                    />
+                    {/* Name label */}
+                    <text
+                      x={n.cx} y={n.cy}
+                      textAnchor="middle" dominantBaseline="middle"
+                      fill="white"
+                      fontSize={isHovered || isSelected ? 2 : 1.8}
+                      fontWeight="700"
+                      fontFamily="sans-serif"
+                      style={{ textTransform: "uppercase", letterSpacing: "0.06em", pointerEvents: "none", transition: "font-size 0.1s" }}
+                      filter="url(#lbl-shadow)"
+                    >
+                      {n.name}
+                    </text>
+                    {/* Unit count sub-label */}
+                    <text
+                      x={n.cx} y={n.cy + 2.4}
+                      textAnchor="middle" dominantBaseline="middle"
+                      fill="white" fontSize="1.2" fontWeight="400" fontFamily="sans-serif"
+                      fillOpacity={0.9}
+                      style={{ pointerEvents: "none" }}
+                      filter="url(#lbl-shadow)"
+                    >
+                      {n.units}
+                    </text>
+                  </g>
+                )
+              })}
+            </svg>
+          </div>
+        </div>
+
+        {/* ── Map UI controls ── */}
+
+        {/* Zoom buttons */}
+        <div className="absolute bottom-6 right-6 flex flex-col gap-1.5 z-10">
+          <button onClick={() => zoomBtn(1)} className="flex h-9 w-9 items-center justify-center rounded-lg bg-background/90 shadow backdrop-blur-sm hover:bg-background" aria-label="Zoom in">
+            <Plus className="size-4" />
+          </button>
+          <button onClick={() => zoomBtn(-1)} className="flex h-9 w-9 items-center justify-center rounded-lg bg-background/90 shadow backdrop-blur-sm hover:bg-background" aria-label="Zoom out">
+            <Minus className="size-4" />
+          </button>
+          <button onClick={() => { setScale(1); setOffset({ x: 0, y: 0 }) }} className="flex h-9 w-9 items-center justify-center rounded-lg bg-background/90 shadow backdrop-blur-sm hover:bg-background" aria-label="Reset view">
+            <LocateFixed className="size-4" />
+          </button>
+        </div>
+
+        {/* Scale indicator */}
+        {scale > 1 && (
+          <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 rounded-full bg-background/80 px-3 py-1 text-xs font-medium shadow backdrop-blur-sm">
+            {Math.round(scale * 100)}%
+          </div>
+        )}
+
+        {/* Legend */}
+        <div className="absolute bottom-6 left-6 z-10 rounded-lg bg-background/90 px-3 py-2 text-xs text-muted-foreground shadow backdrop-blur-sm">
+          <p className="font-medium text-foreground">Starkdale Farms</p>
+          <p>658 acres · Upstate New York</p>
+        </div>
+
+        {/* Hint */}
+        {!selected && (
+          <div className="absolute left-1/2 top-6 z-10 -translate-x-1/2 rounded-full bg-background/80 px-4 py-1.5 text-xs font-medium shadow backdrop-blur-sm">
+            Click a neighborhood to explore
+          </div>
+        )}
+
+        {/* ── Neighborhood overlay ── */}
+        {selected && (
+          <>
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 z-20 bg-black/40 backdrop-blur-[2px]"
+              onClick={() => setSelected(null)}
+            />
+
+            {/* Panel */}
+            <div className="absolute inset-x-0 bottom-0 z-30 mx-auto flex max-w-2xl flex-col overflow-hidden rounded-t-2xl bg-background shadow-2xl sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-[560px] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl">
+
+              {/* Media */}
+              <div className="relative flex aspect-[16/7] w-full items-center justify-center bg-muted">
+                <div
+                  className="absolute inset-0 opacity-30"
+                  style={{ backgroundColor: selected.color }}
+                />
+                <div className="relative flex flex-col items-center gap-2 text-muted-foreground">
+                  <div className="text-4xl">🏡</div>
+                  <p className="text-sm">Neighborhood media</p>
                 </div>
-              </button>
-            )
-          })}
-        </div>
-      </div>
 
-      <section className="flex gap-0">
-        {/* Left: scrollable results */}
-        <div className="min-w-0 flex-1 px-4 py-8 sm:px-6 lg:px-8">
-          <div className="mb-6 flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              {visibleProperties.length}{" "}
-              {filters.neighborhood !== "all"
-                ? `in ${filters.neighborhood}`
-                : "residences available"}
-            </p>
-            <div className="flex items-center rounded-md border p-1">
-              <Button
-                variant={view === "list" ? "secondary" : "ghost"}
-                size="sm"
-                className="h-7 px-2"
-                onClick={() => setView("list")}
-                aria-label="List view"
-              >
-                <List className="size-4" />
-              </Button>
-              <Button
-                variant={view === "grid" ? "secondary" : "ghost"}
-                size="sm"
-                className="h-7 px-2"
-                onClick={() => setView("grid")}
-                aria-label="Grid view"
-              >
-                <LayoutGrid className="size-4" />
-              </Button>
-            </div>
-          </div>
+                {/* Close button */}
+                <button
+                  onClick={() => setSelected(null)}
+                  className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-background/90 shadow backdrop-blur-sm hover:bg-background"
+                  aria-label="Close"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
 
-          {view === "grid" ? (
-            <div className="grid gap-6 sm:grid-cols-2">
-              {visibleProperties.map((property) => (
-                <PropertyCard
-                  key={property.id}
-                  {...property}
-                  onSelect={() => setSelectedProperty(property)}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3">
-              {visibleProperties.map((property) => (
-                <PropertyListRow
-                  key={property.id}
-                  {...property}
-                  onSelect={() => setSelectedProperty(property)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+              {/* Content */}
+              <div className="flex flex-col gap-4 p-6">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="inline-block h-3 w-3 rounded-full"
+                      style={{ backgroundColor: selected.color }}
+                    />
+                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      {selected.type}
+                    </span>
+                  </div>
+                  <h2 className="mt-1 text-2xl font-bold tracking-tight">{selected.name}</h2>
+                  <p className="mt-0.5 text-sm font-medium text-muted-foreground">{selected.subtitle}</p>
+                </div>
 
-        {/* Right: sticky map */}
-        <div className="sticky top-16 hidden h-[calc(100vh-4rem)] w-[42%] shrink-0 overflow-hidden border-l lg:block">
-          <ResidencesMap
-            properties={SAMPLE_PROPERTIES}
-            activeNeighborhood={filters.neighborhood === "all" ? null : filters.neighborhood}
-            onNeighborhoodClick={(n) =>
-              setFilters((f) => ({ ...f, neighborhood: n ?? "all" }))
-            }
-          />
-        </div>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {selected.description}
+                </p>
+
+                <div className="flex gap-3">
+                  <Button className="flex-1 gap-2" asChild>
+                    <Link href={`/residences`}>
+                      View Residences <ArrowRight className="size-4" />
+                    </Link>
+                  </Button>
+                  <Button variant="outline" onClick={() => setSelected(null)}>
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </section>
     </>
   )
