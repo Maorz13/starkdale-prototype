@@ -1,4 +1,3 @@
-import Link from "next/link"
 import { Bed, Bath, Maximize, Heart } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -19,10 +18,10 @@ interface PropertyCardProps {
   baths: number
   sqft: string
   type: string
+  onSelect?: () => void
 }
 
 export function PropertyCard({
-  id,
   title,
   neighborhood,
   price,
@@ -30,24 +29,25 @@ export function PropertyCard({
   baths,
   sqft,
   type,
+  onSelect,
 }: PropertyCardProps) {
   return (
     <Card className="group h-full">
-      <Link href={`/residences/${id}`}>
+      <button className="w-full text-left" onClick={onSelect}>
         <div className="relative flex aspect-video items-center justify-center rounded-t-lg bg-muted text-sm text-muted-foreground">
           Property Image
           <Badge variant="secondary" className="absolute right-3 top-3">
             {type}
           </Badge>
         </div>
-      </Link>
+      </button>
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div>
             <CardTitle className="text-lg">
-              <Link href={`/residences/${id}`} className="hover:underline">
+              <button className="hover:underline" onClick={onSelect}>
                 {title}
-              </Link>
+              </button>
             </CardTitle>
             <p className="text-sm text-muted-foreground">{neighborhood}</p>
           </div>
