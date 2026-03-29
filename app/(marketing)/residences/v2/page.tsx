@@ -16,6 +16,7 @@ interface NeighborhoodData {
   type: string
   description: string
   color: string
+  image?: string
   cx: number
   cy: number
   rx: number
@@ -62,6 +63,7 @@ const NEIGHBORHOODS: NeighborhoodData[] = [
     description:
       "Designed for those who live for the outdoors. Base Camp is the launch point for Starkdale's 22 km trail network, winter sports, adventure races, and the 10-acre lake. Homes here are built for the elements — warm, grounded, and always ready for the next adventure.",
     color: "#CA8A04",
+    image: "/base-camp-aerial.jpg",
     cx: 39, cy: 21, rx: 6, ry: 7, rotation: 0,
   },
   {
@@ -216,12 +218,30 @@ export default function ResidencesV2Page() {
 
         {/* ── Neighborhood side panel ── */}
         <div
-          className={`absolute inset-y-0 right-0 z-30 flex w-80 flex-col border-l border-white/10 bg-white/10 shadow-2xl backdrop-blur-xl transition-transform duration-300 ease-in-out ${
+          className={`absolute inset-y-0 right-0 z-30 flex w-[90%] flex-col border-l border-white/10 bg-white/10 shadow-2xl backdrop-blur-xl transition-transform duration-300 ease-in-out ${
             selected ? "translate-x-0" : "translate-x-full"
           }`}
         >
           {selected && (
             <>
+              {/* Media */}
+              <div className="relative h-64 w-full shrink-0 overflow-hidden">
+                {selected.image ? (
+                  <Image
+                    src={selected.image}
+                    alt={selected.name}
+                    fill
+                    className="object-cover object-center"
+                  />
+                ) : (
+                  <div
+                    className="absolute inset-0 opacity-40"
+                    style={{ backgroundColor: selected.color }}
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/50" />
+              </div>
+
               {/* Header */}
               <div className="flex items-start justify-between border-b border-white/15 px-6 py-5">
                 <div>
