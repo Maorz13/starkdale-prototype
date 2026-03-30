@@ -4,26 +4,61 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { SheetClose } from "@/components/ui/sheet"
 import {
   Bed,
   Bath,
   Maximize,
   Heart,
   Share2,
-  ArrowLeftRight,
-  Paintbrush,
-  Calculator,
   Car,
   Ruler,
-  Images,
-  MapPin,
   Box,
-  X,
+  MapPin,
+  Leaf,
+  HeartPulse,
+  TreePine,
+  Waves,
+  Flower2,
+  Cpu,
+  Wind,
+  Dumbbell,
+  Zap,
+  ChefHat,
+  Wine,
+  Briefcase,
+  Thermometer,
+  Building2,
+  Paintbrush,
+  LayoutDashboard,
 } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import type { Property } from "@/lib/residence-types"
+
+const TAG_ICONS: Record<string, LucideIcon> = {
+  "BIOPHILIC DESIGN":        Leaf,
+  "LONGEVITY DESIGN":        HeartPulse,
+  "TRAIL ACCESS":            TreePine,
+  "PRIVATE POOL":            Waves,
+  "GARDEN":                  Flower2,
+  "SMART HOME":              Cpu,
+  "AIR QUALITY MONITORING":  Wind,
+  "EV READY":                Zap,
+  "SAUNA":                   Thermometer,
+  "CHEF'S KITCHEN":          ChefHat,
+  "WINE CELLAR":             Wine,
+  "HOME OFFICE":             Briefcase,
+  "GYM":                     Dumbbell,
+  "PRIVATE TERRACE":         TreePine,
+}
+
+const CLOSE_TO_DISTANCE: Record<string, string> = {
+  "The Square":    "2 min walk",
+  "Trails":        "5 min walk",
+  "Spa & Wellness": "4 min walk",
+  "Lake":          "6 min walk",
+  "Play Village":  "3 min walk",
+  "Base Camp":     "8 min walk",
+}
 
 const TAGS: Record<string, string[]> = {
   "Smart Home":              ["SMART HOME"],
@@ -77,11 +112,20 @@ function calcPricePerSqft(price: string, sqft: string): string {
   return `$${Math.round(p / s).toLocaleString()}`
 }
 
-interface ResidenceDetailProps {
-  property: Property
+function calcEstPayment(price: string): string {
+  const p = Number(price.replace(/[$,]/g, ""))
+  // Rough 30yr at 6.8% with 20% down
+  const loan = p * 0.8
+  const monthly = (loan * (0.068 / 12)) / (1 - Math.pow(1 + 0.068 / 12, -360))
+  return `$${Math.round(monthly).toLocaleString()}/mo`
 }
 
-export function ResidenceDetail({ property }: ResidenceDetailProps) {
+interface ResidenceDetailProps {
+  property: Property
+  backHref?: string
+}
+
+export function ResidenceDetail({ property, backHref }: ResidenceDetailProps) {
   const {
     id,
     title,
@@ -91,6 +135,7 @@ export function ResidenceDetail({ property }: ResidenceDetailProps) {
     baths,
     sqft,
     type,
+    style,
     availability,
     parking,
     lotSize,
@@ -101,239 +146,273 @@ export function ResidenceDetail({ property }: ResidenceDetailProps) {
   const tags = deriveTags(amenities)
   const features = deriveFeatures(amenities)
   const pricePerSqft = calcPricePerSqft(price, sqft)
-  const hoa = type === "Multifamily" ? "$620/mo" : "N/A"
+  const estPayment = calcEstPayment(price)
+  const hoa = type === "Multifamily" ? "$620/mo" : null
 
   const description = `Perfectly positioned within the ${neighborhood} neighborhood, ${title} is a beautifully designed ${beds}-bedroom ${type === "Multifamily" ? "residence" : "home"} offering an exceptional blend of contemporary architecture and natural living. This open-concept home is thoughtfully crafted for both gracious entertaining and comfortable daily life. Floor-to-ceiling windows frame the surrounding landscape, and every detail reflects Starkdale's commitment to longevity design and biophilic principles.`
 
   return (
     <div className="flex h-full flex-col">
 
-      {/* Sticky top bar */}
-      <div className="sticky top-0 z-10 flex shrink-0 items-center justify-between border-b bg-background px-6 py-3">
-        <p className="truncate pr-4 font-semibold">{title}</p>
-        <SheetClose asChild>
-          <Button variant="ghost" size="sm" className="shrink-0 gap-1.5">
-            <X className="size-4" />
-            Close
-          </Button>
-        </SheetClose>
-      </div>
 
       {/* Scrollable body */}
       <div className="flex-1 overflow-y-auto">
 
         {/* Gallery */}
-        <div className="relative grid h-56 grid-cols-4 grid-rows-2 gap-1.5 p-4">
-          <div className="col-span-2 row-span-2 flex flex-col items-center justify-center gap-2 rounded-lg bg-muted text-muted-foreground">
+        <div className="px-6 pt-6">
+        <div className="relative flex h-64 gap-1 overflow-hidden rounded-xl sm:h-96">
+          {/* Main large photo — left half */}
+          <div className="flex flex-1 flex-col items-center justify-center gap-2 bg-muted text-muted-foreground">
             <Box className="size-8 opacity-40" />
-            <span className="text-xs font-medium">3D Interactive Video</span>
+            <span className="text-xs font-medium">3D Interactive View</span>
           </div>
-          <div className="flex items-center justify-center rounded-lg bg-muted/80 text-xs text-muted-foreground">Photo 2</div>
-          <div className="flex items-center justify-center rounded-lg bg-muted/80 text-xs text-muted-foreground">Photo 3</div>
-          <div className="flex items-center justify-center rounded-lg bg-muted/80 text-xs text-muted-foreground">Photo 4</div>
-          <div className="flex items-center justify-center rounded-lg bg-muted/80 text-xs text-muted-foreground">Photo 5</div>
-          <div className="absolute bottom-6 right-6">
-            <Button variant="secondary" size="sm" className="gap-1.5 text-xs">
-              <Images className="size-3.5" />
-              See all 24 photos
+          {/* Right 2×2 grid */}
+          <div className="grid flex-1 grid-cols-2 grid-rows-2 gap-1">
+            <div className="flex items-center justify-center bg-muted/80 text-xs text-muted-foreground">Photo 2</div>
+            <div className="flex items-center justify-center bg-muted/80 text-xs text-muted-foreground">Photo 3</div>
+            <div className="flex items-center justify-center bg-muted/80 text-xs text-muted-foreground">Photo 4</div>
+            <div className="flex items-center justify-center bg-muted/70 text-xs text-muted-foreground">Photo 5</div>
+          </div>
+          {/* Show all photos */}
+          <div className="absolute bottom-4 right-4">
+            <Button variant="secondary" size="sm" className="gap-1.5 text-xs shadow">
+              <span className="grid size-3.5 grid-cols-2 grid-rows-2 gap-px">
+                {[...Array(4)].map((_, i) => <span key={i} className="rounded-[1px] bg-current opacity-70" />)}
+              </span>
+              Show all photos
             </Button>
           </div>
         </div>
+        </div>
 
-        <div className="space-y-6 px-6 pb-10">
+        {/* Two-column layout */}
+        <div className="mx-auto flex max-w-7xl gap-8 px-6 py-8">
 
-          {/* Price + title */}
-          <div className="flex flex-wrap items-start justify-between gap-3">
+          {/* ── LEFT: main content ── */}
+          <div className="min-w-0 flex-1 space-y-6">
+
+            {/* Title + price */}
             <div>
-              <h2 className="text-3xl font-bold tracking-tight">{price}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {title} · {neighborhood} Neighborhood
-              </p>
-            </div>
-            <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon"><Heart className="size-4" /></Button>
-              <Button variant="ghost" size="icon"><Share2 className="size-4" /></Button>
-            </div>
-          </div>
-
-          {/* Spec row */}
-          <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium">
-            <span className="flex items-center gap-1.5">
-              <Bed className="size-4 text-muted-foreground" /> {beds} beds
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Bath className="size-4 text-muted-foreground" /> {baths} baths
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Maximize className="size-4 text-muted-foreground" /> {sqft} sqft
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Car className="size-4 text-muted-foreground" /> {parking} parking
-            </span>
-          </div>
-
-          {/* Info chips */}
-          <div className="flex flex-wrap gap-2 text-sm">
-            <div className="rounded-md border px-3 py-1.5">
-              <span className="text-muted-foreground">Type </span>
-              <span className="font-medium">{type}</span>
-            </div>
-            <div className="rounded-md border px-3 py-1.5">
-              <span className="text-muted-foreground">Built </span>
-              <span className="font-medium">2026</span>
-            </div>
-            {lotSize > 0 && (
-              <div className="rounded-md border px-3 py-1.5">
-                <span className="text-muted-foreground">Lot </span>
-                <span className="font-medium">{lotSize} acres</span>
+              <div className="flex items-start justify-between gap-4">
+                <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
+                <div className="flex shrink-0 items-center gap-1">
+                  <Button variant="ghost" size="icon" className="size-8">
+                    <Heart className="size-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="size-8">
+                    <Share2 className="size-4" />
+                  </Button>
+                </div>
               </div>
-            )}
-            <div className="rounded-md border px-3 py-1.5">
-              <span className="text-muted-foreground">{pricePerSqft}/sqft</span>
-            </div>
-            {type === "Multifamily" && (
-              <div className="rounded-md border px-3 py-1.5">
-                <span className="text-muted-foreground">HOA </span>
-                <span className="font-medium">{hoa}</span>
-              </div>
-            )}
-            <Badge
-              variant={availability === "Available" ? "default" : availability === "Reserved" ? "secondary" : "outline"}
-              className={availability === "Available" ? "bg-green-600 hover:bg-green-700" : ""}
-            >
-              {availability}
-            </Badge>
-          </div>
-
-          <Separator />
-
-          {/* What's special */}
-          <div>
-            <h3 className="font-semibold">What's special</h3>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <span key={tag} className="rounded-full border px-3 py-1 text-xs font-medium tracking-wide">
-                  {tag}
+              <div className="mt-2 flex items-center gap-2">
+                <span className="rounded-full border bg-muted/50 px-3 py-0.5 text-xs font-semibold">{price}</span>
+                <span className={`rounded-full px-3 py-0.5 text-xs font-semibold ${
+                  availability === "Available"
+                    ? "bg-green-600 text-white"
+                    : availability === "Reserved"
+                    ? "bg-secondary text-secondary-foreground border"
+                    : "border text-foreground"
+                }`}>
+                  {availability}
                 </span>
-              ))}
+              </div>
             </div>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{description}</p>
-          </div>
 
-          <Separator />
 
-          {/* Close to */}
-          <div>
-            <h3 className="flex items-center gap-2 font-semibold">
-              <MapPin className="size-4 text-muted-foreground" /> Location &amp; proximity
-            </h3>
-            <div className="mt-2 flex aspect-[16/5] items-center justify-center rounded-lg bg-muted text-sm text-muted-foreground">
-              Map
+            {/* Spec row */}
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium">
+              <span className="flex items-center gap-1.5">
+                <MapPin className="size-4 text-muted-foreground" /> {neighborhood}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Bed className="size-4 text-muted-foreground" /> {beds} beds
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Bath className="size-4 text-muted-foreground" /> {baths} baths
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Maximize className="size-4 text-muted-foreground" /> {sqft} sqft
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Car className="size-4 text-muted-foreground" /> {parking} parking
+              </span>
             </div>
-            <div className="mt-3 grid gap-2 sm:grid-cols-3">
-              {closeTo.map((name) => (
-                <div key={name} className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
-                  <Ruler className="size-3.5 shrink-0 text-muted-foreground" />
-                  <span className="font-medium">{name}</span>
+
+            <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
+
+            {/* Info + highlights grid */}
+            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+              <div className="flex flex-col items-center gap-2 rounded-xl border bg-muted/30 px-3 py-4 text-center">
+                <Building2 className="size-5 text-muted-foreground" />
+                <span className="text-xs font-medium leading-tight tracking-wide">{type}</span>
+              </div>
+              <div className="flex flex-col items-center gap-2 rounded-xl border bg-muted/30 px-3 py-4 text-center">
+                <Paintbrush className="size-5 text-muted-foreground" />
+                <span className="text-xs font-medium leading-tight tracking-wide">{style}</span>
+              </div>
+              {lotSize > 0 && (
+                <div className="flex flex-col items-center gap-2 rounded-xl border bg-muted/30 px-3 py-4 text-center">
+                  <Ruler className="size-5 text-muted-foreground" />
+                  <span className="text-xs font-medium leading-tight tracking-wide">{lotSize} ac lot</span>
                 </div>
-              ))}
+              )}
+              {tags.map((tag) => {
+                const Icon = TAG_ICONS[tag]
+                return (
+                  <div key={tag} className="flex flex-col items-center gap-2 rounded-xl border bg-muted/30 px-3 py-4 text-center">
+                    {Icon && <Icon className="size-5 text-muted-foreground" />}
+                    <span className="text-xs font-medium leading-tight tracking-wide">{tag}</span>
+                  </div>
+                )
+              })}
             </div>
-          </div>
 
-          <Separator />
+            <Separator />
 
-          {/* Facts & features */}
-          <div>
-            <h3 className="font-semibold">Facts &amp; features</h3>
-
-            <div className="mt-3 rounded-lg border">
-              <div className="border-b bg-muted/40 px-4 py-2 text-sm font-medium">Interior</div>
-              <div className="grid gap-4 p-4 sm:grid-cols-2">
-                <div>
-                  <p className="text-sm font-semibold">Bedrooms &amp; bathrooms</p>
-                  <ul className="mt-1.5 space-y-1 text-sm text-muted-foreground">
-                    <li>Bedrooms: {beds}</li>
-                    <li>Bathrooms: {baths}</li>
-                  </ul>
+            {/* Location & proximity */}
+            {/* Floor plan */}
+            <div>
+              <h3 className="font-semibold">Floor plan</h3>
+              <div className="mt-3 overflow-hidden rounded-xl border bg-muted">
+                <div className="flex aspect-[4/3] items-center justify-center text-muted-foreground">
+                  <div className="flex flex-col items-center gap-2">
+                    <LayoutDashboard className="size-8 opacity-40" />
+                    <span className="text-sm">Floor plan coming soon</span>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold">Interior area</p>
-                  <ul className="mt-1.5 space-y-1 text-sm text-muted-foreground">
-                    <li>Livable area: {sqft} sqft</li>
-                    {lotSize > 0 && <li>Lot: {lotSize} acres</li>}
-                    <li>Parking: {parking} {parking === 1 ? "spot" : "spots"}</li>
-                  </ul>
+                <div className="flex items-center justify-between border-t bg-background px-4 py-2.5 text-sm">
+                  <span className="text-muted-foreground">{sqft} sqft · {beds} bed · {baths} bath</span>
+                  <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs">
+                    <Maximize className="size-3.5" /> Full screen
+                  </Button>
                 </div>
               </div>
             </div>
 
-            <div className="mt-3 rounded-lg border">
-              <div className="border-b bg-muted/40 px-4 py-2 text-sm font-medium">Amenities &amp; Services</div>
-              <div className="flex flex-wrap gap-2 p-4">
-                {amenities.map((a) => <Badge key={a} variant="secondary">{a}</Badge>)}
-              </div>
-            </div>
+            <Separator />
 
-            <div className="mt-3 rounded-lg border">
-              <div className="border-b bg-muted/40 px-4 py-2 text-sm font-medium">All Features</div>
-              <ul className="grid gap-1.5 p-4 text-sm text-muted-foreground sm:grid-cols-2">
-                {features.map((f) => (
-                  <li key={f} className="flex items-center gap-1.5">
-                    <span className="size-1 shrink-0 rounded-full bg-muted-foreground" />
-                    {f}
-                  </li>
+            <div>
+              <h3 className="flex items-center gap-2 font-semibold">
+                Location &amp; proximity
+              </h3>
+              <div className="mt-2 flex aspect-[16/5] items-center justify-center rounded-lg bg-muted text-sm text-muted-foreground">
+                Map
+              </div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                {closeTo.map((name) => (
+                  <div key={name} className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
+                    <Ruler className="size-3.5 shrink-0 text-muted-foreground" />
+                    <div className="min-w-0">
+                      <p className="font-medium leading-tight">{name}</p>
+                      <p className="text-xs text-muted-foreground">{CLOSE_TO_DISTANCE[name] ?? "< 5 min walk"}</p>
+                    </div>
+                  </div>
                 ))}
-              </ul>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* CTA */}
-          <div className="space-y-2">
-            <Button className="w-full" size="lg" asChild>
-              <Link href="/contact">Request a tour</Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start gap-2" asChild>
-              <Link href={`/residences/${id}/customize`}>
-                <Paintbrush className="size-4" /> Customize Property
-              </Link>
-            </Button>
-            <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" className="gap-2" asChild>
-                <Link href="/residences/compare">
-                  <ArrowLeftRight className="size-4" /> Compare
-                </Link>
-              </Button>
-              <Button variant="outline" className="gap-2" asChild>
-                <Link href="/residences/financing">
-                  <Calculator className="size-4" /> Financing
-                </Link>
-              </Button>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Contact form */}
-          <div>
-            <h3 className="font-semibold">Contact a sales advisor</h3>
-            <div className="mt-3 space-y-3">
-              <Input placeholder="Name *" />
-              <div className="grid grid-cols-2 gap-3">
-                <Input placeholder="Phone *" type="tel" />
-                <Input placeholder="Email *" type="email" />
               </div>
-              <Textarea
-                placeholder={`I am interested in ${title}.`}
-                className="resize-none"
-                rows={3}
-              />
-              <Button className="w-full">Contact sales team</Button>
+            </div>
+
+            <Separator />
+
+            {/* Facts & features */}
+            <div>
+              <h3 className="font-semibold">Facts &amp; features</h3>
+
+              <div className="mt-3 rounded-lg border">
+                <div className="border-b bg-muted/40 px-4 py-2 text-sm font-medium">Interior</div>
+                <div className="grid gap-4 p-4 sm:grid-cols-2">
+                  <div>
+                    <p className="text-sm font-semibold">Bedrooms &amp; bathrooms</p>
+                    <ul className="mt-1.5 space-y-1 text-sm text-muted-foreground">
+                      <li>Bedrooms: {beds}</li>
+                      <li>Bathrooms: {baths}</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">Interior area</p>
+                    <ul className="mt-1.5 space-y-1 text-sm text-muted-foreground">
+                      <li>Livable area: {sqft} sqft</li>
+                      {lotSize > 0 && <li>Lot: {lotSize} acres</li>}
+                      <li>Parking: {parking} {parking === 1 ? "spot" : "spots"}</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-3 rounded-lg border">
+                <div className="border-b bg-muted/40 px-4 py-2 text-sm font-medium">Amenities &amp; Services</div>
+                <div className="flex flex-wrap gap-2 p-4">
+                  {amenities.map((a) => <Badge key={a} variant="secondary">{a}</Badge>)}
+                </div>
+              </div>
+
+              <div className="mt-3 rounded-lg border">
+                <div className="border-b bg-muted/40 px-4 py-2 text-sm font-medium">All Features</div>
+                <ul className="grid gap-1.5 p-4 text-sm text-muted-foreground sm:grid-cols-2">
+                  {features.map((f) => (
+                    <li key={f} className="flex items-center gap-1.5">
+                      <span className="size-1 shrink-0 rounded-full bg-muted-foreground" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Compare + Financing cards */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-3 rounded-xl border bg-card p-5">
+                <div>
+                  <p className="font-semibold">Compare residences</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Side-by-side comparison of specs, pricing, and amenities.</p>
+                </div>
+                <Button variant="outline" className="w-full" asChild>
+                  <Link href="/residences/compare">Compare</Link>
+                </Button>
+              </div>
+              <div className="space-y-3 rounded-xl border bg-card p-5">
+                <div>
+                  <p className="font-semibold">Explore financing</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Learn about mortgage options and get pre-qualified.</p>
+                </div>
+                <Button variant="outline" className="w-full" asChild>
+                  <Link href="/residences/financing">View Options</Link>
+                </Button>
+              </div>
+            </div>
+
+          </div>
+
+          {/* ── RIGHT: sticky action panel ── */}
+          <div className="hidden w-80 shrink-0 lg:block">
+            <div className="sticky top-6 space-y-3 rounded-xl border bg-card p-5 shadow-sm">
+              {/* CTAs */}
+              <Button className="w-full" size="lg" asChild>
+                <Link href={`/residences/${id}/reserve`}>Reserve Residence</Link>
+              </Button>
+              <Button variant="outline" className="w-full" size="lg" asChild>
+                <Link href="/contact">Contact Us</Link>
+              </Button>
+              <Button variant="ghost" className="w-full" asChild>
+                <Link href={`/residences/${id}/customize`}>Customize Residence</Link>
+              </Button>
+
             </div>
           </div>
 
         </div>
+
+        {/* Mobile CTAs (visible only below lg) */}
+        <div className="sticky bottom-0 border-t bg-background/95 px-6 py-3 backdrop-blur-sm lg:hidden">
+          <div className="flex gap-2">
+            <Button className="flex-1" asChild>
+              <Link href={`/residences/${id}/reserve`}>Reserve Residence</Link>
+            </Button>
+            <Button variant="outline" className="flex-1" asChild>
+              <Link href="/contact">Contact Us</Link>
+            </Button>
+          </div>
+        </div>
+
       </div>
     </div>
   )

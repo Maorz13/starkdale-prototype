@@ -1,5 +1,7 @@
 export type Availability = "Available" | "Reserved" | "Coming Soon"
 
+export type ResidenceStyle = "Modern" | "Traditional" | "Agriculture"
+
 export interface Property {
   id: string
   title: string
@@ -9,6 +11,7 @@ export interface Property {
   baths: number
   sqft: string            // "2,400"
   type: "Multifamily" | "Single-Family"
+  style: ResidenceStyle
   availability: Availability
   parking: number         // spots
   lotSize: number         // acres, 0 for multifamily
