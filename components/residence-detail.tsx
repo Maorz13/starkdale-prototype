@@ -384,7 +384,7 @@ export function ResidenceDetail({ property, backHref }: ResidenceDetailProps) {
 
           {/* ── RIGHT: sticky action panel ── */}
           <div className="hidden w-80 shrink-0 lg:block">
-            <div className="sticky top-6 space-y-3 rounded-xl border bg-card p-5 shadow-sm">
+            <div className="space-y-3 rounded-xl border bg-card p-5 shadow-sm">
               {/* CTAs */}
               <Button className="w-full" size="lg" asChild>
                 <Link href={`/residences/${id}/reserve`}>Reserve Residence</Link>
